@@ -1,111 +1,161 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/* ─────────────────────────────────────────────────────────────────────────────
+   GLOBAL STYLES
+   Everything here applies to the whole page. Components add their own styles
+   via inline style props, but shared tokens and keyframes live here.
+───────────────────────────────────────────────────────────────────────────── */
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+/* ── Reset ──────────────────────────────────────────────────────────────────
+   Browsers have default margins/padding on almost everything. We clear them
+   so we start from a predictable blank slate. */
+*, *::before, *::after {
+  box-sizing: border-box; /* padding and border are included in element width */
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ── Design tokens (CSS custom properties) ──────────────────────────────────
+   These are the single source of truth for colours, fonts, and spacing.
+   Change a value here and it updates everywhere on the page.
+   --acc is the warm cream that acts as the primary accent/highlight colour. */
+:root {
+  --bg:        #060606;                        /* near-black page background   */
+  --surface:   rgba(247, 230, 202, 0.04);     /* very faint warm tint for cards */
+  --surface2:  rgba(247, 230, 202, 0.08);     /* slightly stronger, for active states */
+  --acc:       #F7E6CA;                        /* warm cream — the brand accent */
+  --acc-dim:   rgba(247, 230, 202, 0.12);
+  --acc-glow:  rgba(247, 230, 202, 0.18);
+  --text:      #ede8e0;                        /* off-white body text           */
+  --muted:     rgba(237, 232, 224, 0.42);     /* dimmed text for labels/hints  */
+  --border:    rgba(247, 230, 202, 0.14);     /* subtle card border            */
+  --border2:   rgba(247, 230, 202, 0.28);     /* stronger border for active states */
+  --radius:    8px;                            /* standard corner radius        */
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  /* Font families — loaded via Google Fonts in index.html */
+  --font-display: 'Cormorant Garamond', serif;  /* large headings, wordmark     */
+  --font-script:  'Dancing Script', cursive;    /* "Envision the Fit." tagline  */
+  --font-body:    'DM Sans', sans-serif;        /* body text, labels, buttons   */
+}
+
+html {
+  scroll-behavior: smooth; /* makes the "Get Started" scroll-to-section animate */
 }
 
 body {
-  margin: 0;
+  background:              var(--bg);
+  color:                   var(--text);
+  font-family:             var(--font-body);
+  font-size:               16px;
+  line-height:             1.5;
+  overflow-x:              hidden; /* prevents horizontal scrollbars from sliding elements */
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Full-height app shell — no max-width constraint, unlike the Vite default */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* ── Keyframe animations ─────────────────────────────────────────────────────
+   Defined here so any component can reference them by name in its style prop. */
+
+/* Elements that slide up and fade in on load (wordmark, tagline, CTA button) */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+/* Simple opacity fade — used on the outfit name label */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* Spotlight sweep — a bright bar travels left-to-right across the TBD wordmark once on load.
+   The element starts at left:-60% (off screen left) and ends at left:110% (off screen right). */
+@keyframes glimmer {
+  0%   { left: -60%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 110%; opacity: 0; }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* Scroll cue arrow bobs gently up and down.
+   Uses translateX(-50%) to stay centred on left:50%, then adds vertical movement. */
+@keyframes bobble {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(7px); }
+}
+
+/* The ambient glow behind the model slowly pulses */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.18; }
+  50%       { opacity: 0.32; }
+}
+
+/* ── Utility classes ─────────────────────────────────────────────────────────
+   Reusable class names applied directly in JSX. */
+
+/* Frosted-glass card — the dark translucent surface used on sidebar cards, etc. */
+.glass {
+  background:             var(--surface);
+  backdrop-filter:        blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border:                 1px solid var(--border);
+  border-radius:          var(--radius);
+}
+
+/* Stronger frosted glass — used when a card is in the active/selected state */
+.glass-strong {
+  background:             var(--surface2);
+  backdrop-filter:        blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border:                 1px solid var(--border2);
+  border-radius:          var(--radius);
+}
+
+/* Horizontal section label with thin decorative lines on each side.
+   Example usage: <div className="section-label">BE FIRST</div>
+   The ::before and ::after pseudo-elements draw the lines via flex: 1. */
+.section-label {
+  font-family:     var(--font-body);
+  font-size:       11px;
+  letter-spacing:  0.16em;
+  text-transform:  uppercase;
+  color:           var(--muted);
+  display:         flex;
+  align-items:     center;
+  gap:             16px;
+}
+.section-label::before,
+.section-label::after {
+  content:    '';
+  flex:       1;            /* each line stretches to fill remaining space */
+  height:     1px;
+  background: var(--border);
+}
+
+/* Diagonal hatching pattern — used as a fill on empty placeholder boxes */
+.stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(247, 230, 202, 0.04) 5px,
+    rgba(247, 230, 202, 0.04) 6px
+  );
+}
+
+/* ── Scroll-reveal classes ───────────────────────────────────────────────────
+   Elements start invisible and shifted down. When useInView() detects them
+   entering the viewport, it adds the .visible class which triggers the transition.
+   See src/hooks/useInView.js for the JavaScript side. */
+.reveal {
+  opacity:    0;
+  transform:  translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity:   1;
+  transform: translateY(0);
 }
