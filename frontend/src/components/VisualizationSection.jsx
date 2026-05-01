@@ -1,5 +1,15 @@
 import { useRef, useState, useEffect } from 'react';
 import { FEATURES } from '../features';
+import tankSrc from '../assets/TANK_SRC.png'
+import jeansSrc from '../assets/JEANS_SRC.png'
+import sweaterSrc from '../assets/SWEATER_SRC.png'
+import skirtSrc from '../assets/SKIRT_SRC.png'
+import kenteSrc from '../assets/KENTE_SRC.png'
+import modelSrc from '../assets/MODEL_IMG.png'
+import render1Src from "../assets/RENDER1_SRC.png"
+import render2Src from "../assets/RENDER2_SRC.png"
+import render3Src from "../assets/RENDER3_SRC.png"
+
 
 // ── Image slots ───────────────────────────────────────────────────────────────
 // These constants are where you'll plug in real images later.
@@ -9,15 +19,15 @@ import { FEATURES } from '../features';
 //
 // For now they're empty strings — the <img> tags render but show nothing,
 // which is fine while we build the structure.
-const MODEL_SRC      = ''; // the base model photo (no clothing)
-const TANK_SRC       = ''; // flat-lay white tank top
-const JEANS_SRC      = ''; // flat-lay baggy jeans
-const SWEATER_SRC    = ''; // flat-lay varsity cardigan
-const SKIRT_SRC      = ''; // flat-lay mini skirt
-const FLAT_KENTE_SRC = ''; // flat-lay kente dress
-const RENDER1_SRC    = ''; // AI-generated model wearing tank + jeans
-const RENDER2_SRC    = ''; // AI-generated model wearing sweater + skirt
-const RENDER3_SRC    = ''; // AI-generated model wearing kente dress
+const MODEL_SRC      = modelSrc; // the base model photo (no clothing)
+const TANK_SRC       = tankSrc; // flat-lay white tank top
+const JEANS_SRC      = jeansSrc; // flat-lay baggy jeans
+const SWEATER_SRC    = sweaterSrc; // flat-lay varsity cardigan
+const SKIRT_SRC      = skirtSrc; // flat-lay mini skirt
+const FLAT_KENTE_SRC = kenteSrc; // flat-lay kente dress
+const RENDER1_SRC    = render1Src; // AI-generated model wearing tank + jeans
+const RENDER2_SRC    = render2Src; // AI-generated model wearing sweater + skirt
+const RENDER3_SRC    = render3Src; // AI-generated model wearing kente dress
 
 // ── Math helpers ──────────────────────────────────────────────────────────────
 // These are small pure functions used to calculate opacity and position values
@@ -106,8 +116,6 @@ function VisualizationSection() {
   // when the section is disabled. (Hooks must always be called, so the check
   // happens inside useEffect, not before the hooks.)
   useEffect(() => {
-    if (!FEATURES.vizAnimation) return;
-
     function onScroll() {
       const el = sectionRef.current;
       if (!el) return;
@@ -122,9 +130,6 @@ function VisualizationSection() {
     onScroll(); // set correct initial value (in case the user reloads mid-scroll)
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // Feature-flag early return — must come AFTER hooks (React rule)
-  if (!FEATURES.vizAnimation) return null;
 
   // ── Scroll timeline ────────────────────────────────────────────────────────
   // Each outfit has three phases: slide-in, swap (pieces → render), exit.
@@ -453,8 +458,8 @@ function VisualizationSection() {
             </div>{/* end inner clip */}
 
             {/* ── Sliding garment pieces ─────────────────────────────────
-                These are positioned inside the outer (non-clipped) container
-                so they can slide in from off-screen.
+                Gated by FEATURES.vizAnimation. When false, the model and AI
+                renders still work — only these flat-lay images are hidden.
 
                 Each piece uses translateX(calc(-50% + Nvw)):
                   -50%  centres the image on left:50%
@@ -463,97 +468,100 @@ function VisualizationSection() {
                 `pieces1` opacity is the combined slide × (1 - swap) value,
                 so the piece is fully visible while sliding in, then fades out
                 as the AI render fades in. */}
+            {FEATURES.vizAnimation && (
+              <>
+                {/* Outfit 1 — White Tank slides in from the LEFT */}
+                <img
+                  src={TANK_SRC}
+                  alt=""
+                  style={{
+                    height:        '25.84vh', // covers shoulder to beltline on the model
+                    width:         'auto',
+                    position:      'absolute',
+                    top:           '10.06%',  // aligns with shoulder zone
+                    left:          '50%',
+                    transform:     `translateX(calc(-50% + ${fromLeft(slide1)}vw))`,
+                    zIndex:        4,
+                    opacity:       pieces1,
+                    pointerEvents: 'none',
+                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                  }}
+                />
 
-            {/* Outfit 1 — White Tank slides in from the LEFT */}
-            <img
-              src={TANK_SRC}
-              alt=""
-              style={{
-                height:        '25.84vh', // covers shoulder to beltline on the model
-                width:         'auto',
-                position:      'absolute',
-                top:           '10.06%',  // aligns with shoulder zone
-                left:          '50%',
-                transform:     `translateX(calc(-50% + ${fromLeft(slide1)}vw))`,
-                zIndex:        4,
-                opacity:       pieces1,
-                pointerEvents: 'none',
-                filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
-              }}
-            />
+                {/* Outfit 1 — Baggy Jeans slide in from the RIGHT */}
+                <img
+                  src={JEANS_SRC}
+                  alt=""
+                  style={{
+                    height:        '33.48vh', // covers beltline to feet
+                    width:         'auto',
+                    position:      'absolute',
+                    top:           '50.38%',  // aligns with beltline zone
+                    left:          '50%',
+                    transform:     `translateX(calc(-50% + ${fromRight(slide1)}vw))`,
+                    zIndex:        4,
+                    opacity:       pieces1,
+                    pointerEvents: 'none',
+                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                  }}
+                />
 
-            {/* Outfit 1 — Baggy Jeans slide in from the RIGHT */}
-            <img
-              src={JEANS_SRC}
-              alt=""
-              style={{
-                height:        '33.48vh', // covers beltline to feet
-                width:         'auto',
-                position:      'absolute',
-                top:           '50.38%',  // aligns with beltline zone
-                left:          '50%',
-                transform:     `translateX(calc(-50% + ${fromRight(slide1)}vw))`,
-                zIndex:        4,
-                opacity:       pieces1,
-                pointerEvents: 'none',
-                filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
-              }}
-            />
+                {/* Outfit 2 — Varsity Cardigan slides in from the LEFT */}
+                <img
+                  src={SWEATER_SRC}
+                  alt=""
+                  style={{
+                    height:        '25.84vh',
+                    width:         'auto',
+                    position:      'absolute',
+                    top:           '5.46%',
+                    left:          '50%',
+                    transform:     `translateX(calc(-50% + ${fromLeft(slide2)}vw))`,
+                    zIndex:        4,
+                    opacity:       pieces2,
+                    pointerEvents: 'none',
+                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                  }}
+                />
 
-            {/* Outfit 2 — Varsity Cardigan slides in from the LEFT */}
-            <img
-              src={SWEATER_SRC}
-              alt=""
-              style={{
-                height:        '25.84vh',
-                width:         'auto',
-                position:      'absolute',
-                top:           '5.46%',
-                left:          '50%',
-                transform:     `translateX(calc(-50% + ${fromLeft(slide2)}vw))`,
-                zIndex:        4,
-                opacity:       pieces2,
-                pointerEvents: 'none',
-                filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
-              }}
-            />
+                {/* Outfit 2 — Mini Skirt slides in from the RIGHT */}
+                <img
+                  src={SKIRT_SRC}
+                  alt=""
+                  style={{
+                    height:        '18vh',   // shorter — above-knee mini
+                    width:         'auto',
+                    position:      'absolute',
+                    top:           '43.59%',
+                    left:          '50%',
+                    transform:     `translateX(calc(-50% + ${fromRight(slide2)}vw))`,
+                    zIndex:        4,
+                    opacity:       pieces2,
+                    pointerEvents: 'none',
+                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                  }}
+                />
 
-            {/* Outfit 2 — Mini Skirt slides in from the RIGHT */}
-            <img
-              src={SKIRT_SRC}
-              alt=""
-              style={{
-                height:        '18vh',   // shorter — above-knee mini
-                width:         'auto',
-                position:      'absolute',
-                top:           '43.59%',
-                left:          '50%',
-                transform:     `translateX(calc(-50% + ${fromRight(slide2)}vw))`,
-                zIndex:        4,
-                opacity:       pieces2,
-                pointerEvents: 'none',
-                filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
-              }}
-            />
-
-            {/* Outfit 3 — Flat Kente slides in from the LEFT (full-length, no bottom piece) */}
-            <img
-              src={FLAT_KENTE_SRC}
-              alt=""
-              style={{
-                height:        '59.3vh', // full shoulder-to-feet coverage
-                width:         'auto',
-                position:      'absolute',
-                top:           '-1.65%', // starts slightly above the container top
-                left:          '50%',
-                transform:     `translateX(calc(-50% + ${fromLeft(slide3)}vw))`,
-                zIndex:        4,
-                opacity:       pieces3,
-                pointerEvents: 'none',
-                // Warm amber glow for the kente pattern
-                filter:        'drop-shadow(0 8px 32px rgba(247,140,0,0.4))',
-              }}
-            />
+                {/* Outfit 3 — Flat Kente slides in from the LEFT (full-length, no bottom piece) */}
+                <img
+                  src={FLAT_KENTE_SRC}
+                  alt=""
+                  style={{
+                    height:        '59.3vh', // full shoulder-to-feet coverage
+                    width:         'auto',
+                    position:      'absolute',
+                    top:           '-1.65%', // starts slightly above the container top
+                    left:          '50%',
+                    transform:     `translateX(calc(-50% + ${fromLeft(slide3)}vw))`,
+                    zIndex:        4,
+                    opacity:       pieces3,
+                    pointerEvents: 'none',
+                    // Warm amber glow for the kente pattern
+                    filter:        'drop-shadow(0 8px 32px rgba(247,140,0,0.4))',
+                  }}
+                />
+              </>
+            )}
 
           </div>{/* end model container */}
 
