@@ -61,20 +61,24 @@ function WaitlistSection() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-    const response = await fetch("https://outfitvisualizer-production.up.railway.app/subscribe", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: firstName, email: email }),
-    });
-    if (response.ok) {
-      setFormState("submitted");
-    } else {
+      const response = await fetch(
+        "https://outfitvisualizer-production.up.railway.app/subscribe",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: firstName, email: email }),
+        },
+      );
+      if (response.ok) {
+        setFormState("submitted");
+      } else {
+        setHasError(true);
+        console.error("Submission failed:", response.status);
+      }
+    } catch {
       setHasError(true);
-      console.error("Submission failed:", response.status);
-    }} catch {
-      setHasError(true)
     }
   }
 
@@ -151,14 +155,20 @@ function WaitlistSection() {
           >
             <input
               value={firstName}
-              onChange={(e) => {setFirstName(e.target.value);  setHasError(false);}}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                setHasError(false);
+              }}
               placeholder="First name"
               type="text"
               style={inputStyle}
             />
             <input
               value={email}
-              onChange={(e) => {setEmail(e.target.value); setHasError(false);}}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setHasError(false);
+              }}
               placeholder="Email address"
               type="email"
               style={{ ...inputStyle, width: 260 }}
@@ -270,7 +280,10 @@ function WaitlistSection() {
                 </span>{" "}
               </p>
               <button
-                onClick={() => setBetaState("applied")}
+                onClick={() => {
+                  window.open("https://form.typeform.com/to/kfkR385c", "_blank");
+                  setBetaState("applied");
+                }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "rgba(247,230,202,0.18)";
                   e.currentTarget.style.boxShadow =
