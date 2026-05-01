@@ -61,7 +61,7 @@ function WaitlistSection() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-    const response = await fetch("http://127.0.0.1:8000/subscribe", {
+    const response = await fetch("https://outfitvisualizer-production.up.railway.app/subscribe", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
