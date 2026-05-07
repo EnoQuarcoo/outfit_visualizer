@@ -154,22 +154,20 @@ function VisualizationSection() {
 
   const slide1  = er(progress, 0.08, 0.20);
   const swap1   = er(progress, 0.20, 0.27);
-  const exit1   = er(progress, 0.44, 0.52);
-  // pieces1: visible while sliding in, fades to 0 once the swap starts
   const pieces1 = slide1 * (1 - swap1);
-  // render1: fades in during swap, fades out on exit
-  const render1 = swap1  * (1 - exit1);
 
   const slide2  = er(progress, 0.52, 0.64);
   const swap2   = er(progress, 0.64, 0.71);
-  const exit2   = er(progress, 0.84, 0.90);
   const pieces2 = slide2 * (1 - swap2);
-  const render2 = swap2  * (1 - exit2);
 
   const slide3  = er(progress, 0.90, 0.97);
   const swap3   = er(progress, 0.97, 1.00);
   const pieces3 = slide3 * (1 - swap3);
-  const render3 = swap3;  // kente render stays once it appears (no exit)
+
+  // Each render appears on its swap and is replaced by the next — no return to nude model between outfits
+  const render1 = swap1 * (1 - swap2);
+  const render2 = swap2 * (1 - swap3);
+  const render3 = swap3;
 
   // The base model photo fades out whenever any AI render is showing
   const anyRender    = Math.min(1, render1 + render2 + render3);
@@ -205,7 +203,7 @@ function VisualizationSection() {
   // The left sidebar fades out entirely when render3 is fully shown.
   // The right sidebar (bottoms) also hides for outfit 3 since the kente is a full dress.
   const sidebarOpacity      = render3 > 0.7 ? 0 : 1;
-  const rightSidebarOpacity = activeOutfit === 2 ? 0 : sidebarOpacity;
+  const rightSidebarOpacity = sidebarOpacity;
 
   // Garment data for each sidebar column
   const leftItems = [
@@ -253,19 +251,6 @@ function VisualizationSection() {
           <div className="section-label" style={{ maxWidth: 280, margin: '0 auto 8px' }}>
             SCROLL TO DRESS
           </div>
-          {/* Active outfit name fades in/out as outfits change */}
-          <div
-            style={{
-              fontFamily: 'var(--font-script)',
-              fontSize:   'clamp(16px, 2.2vw, 26px)',
-              color:      'var(--acc)',
-              minHeight:  30,
-              opacity:    outfitLabel ? 1 : 0.3,
-              transition: 'opacity 0.5s',
-            }}
-          >
-            {outfitLabel || 'Scroll to dress her'}
-          </div>
         </div>
 
         {/* ── Left sidebar — tops + kente ───────────────────────────────── */}
@@ -273,7 +258,7 @@ function VisualizationSection() {
           style={{
             position:   'absolute',
             left:       '3%',
-            top:        '50%',
+            top:        '45%',
             transform:  'translateY(-50%)',
             zIndex:     6,
             display:    'flex',
@@ -306,7 +291,7 @@ function VisualizationSection() {
           style={{
             position:   'absolute',
             right:      '3%',
-            top:        '50%',
+            top:        '45%',
             transform:  'translateY(-50%)',
             zIndex:     6,
             display:    'flex',
@@ -342,7 +327,7 @@ function VisualizationSection() {
           style={{
             position:  'absolute',
             left:      '50%',
-            top:       '52%',
+            top:       '47%',
             transform: 'translate(-50%, -50%)',
             zIndex:    5,
           }}
@@ -351,12 +336,12 @@ function VisualizationSection() {
           <div
             style={{
               position:  'absolute',
-              top:       '-10%',
+              top:       '0%',
               left:      '50%',
               transform: 'translateX(-50%)',
-              width:     '220%',
-              height:    '130%',
-              background: 'radial-gradient(ellipse 55% 60% at 50% 30%, rgba(247,230,202,0.1) 0%, transparent 70%)',
+              width:     '180%',
+              height:    '100%',
+              background: 'radial-gradient(ellipse 45% 55% at 50% 50%, rgba(247,230,202,0.12) 0%, rgba(247,230,202,0.05) 40%, transparent 75%)',
               animation:  'glow-pulse 3s ease-in-out infinite',
               pointerEvents: 'none',
             }}
@@ -475,10 +460,10 @@ function VisualizationSection() {
                   src={TANK_SRC}
                   alt=""
                   style={{
-                    height:        '25.84vh', // covers shoulder to beltline on the model
+                    height:        '22.41vh',
                     width:         'auto',
                     position:      'absolute',
-                    top:           '10.06%',  // aligns with shoulder zone
+                    top:           '24.29%',
                     left:          '50%',
                     transform:     `translateX(calc(-50% + ${fromLeft(slide1)}vw))`,
                     zIndex:        4,
@@ -511,10 +496,10 @@ function VisualizationSection() {
                   src={SWEATER_SRC}
                   alt=""
                   style={{
-                    height:        '25.84vh',
+                    height:        '43.34vh',
                     width:         'auto',
                     position:      'absolute',
-                    top:           '5.46%',
+                    top:           '14.6%',
                     left:          '50%',
                     transform:     `translateX(calc(-50% + ${fromLeft(slide2)}vw))`,
                     zIndex:        4,
@@ -529,8 +514,8 @@ function VisualizationSection() {
                   src={SKIRT_SRC}
                   alt=""
                   style={{
-                    height:        '18vh',   // shorter — above-knee mini
-                    width:         'auto',
+                    height:        '18vh',
+                    width:         '16.97vh',
                     position:      'absolute',
                     top:           '43.59%',
                     left:          '50%',
@@ -547,10 +532,10 @@ function VisualizationSection() {
                   src={FLAT_KENTE_SRC}
                   alt=""
                   style={{
-                    height:        '59.3vh', // full shoulder-to-feet coverage
-                    width:         'auto',
+                    height:        '70vh',
+                    width:         '32.06vh',
                     position:      'absolute',
-                    top:           '-1.65%', // starts slightly above the container top
+                    top:           '15%',
                     left:          '50%',
                     transform:     `translateX(calc(-50% + ${fromLeft(slide3)}vw))`,
                     zIndex:        4,
@@ -566,19 +551,15 @@ function VisualizationSection() {
           </div>{/* end model container */}
 
           {/* Active outfit name below the model */}
-          <div style={{ textAlign: 'center', marginTop: 10, height: 20 }}>
+          <div style={{ textAlign: 'center', marginTop: 40, minHeight: 36 }}>
             {outfitLabel && (
-              // key={outfitLabel} causes React to re-mount this element when the
-              // outfit changes, which re-triggers the fadeIn animation each time
               <div
                 key={outfitLabel}
                 style={{
-                  fontFamily:    'var(--font-body)',
-                  fontSize:      11,
-                  letterSpacing: '0.13em',
-                  textTransform: 'uppercase',
-                  color:         'var(--muted)',
-                  animation:     'fadeIn 0.5s ease',
+                  fontFamily: 'var(--font-script)',
+                  fontSize:   'clamp(16px, 2.2vw, 26px)',
+                  color:      'var(--acc)',
+                  animation:  'fadeIn 0.5s ease',
                 }}
               >
                 {outfitLabel}

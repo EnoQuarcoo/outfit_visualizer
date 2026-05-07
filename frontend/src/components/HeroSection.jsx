@@ -8,7 +8,7 @@ function GetStartedBtn() {
   const [hovered, setHovered] = useState(false);
 
   function handleClick() {
-    const el = document.getElementById('waitlist');
+    const el = document.getElementById('cta');
     if (el) window.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
   }
 
@@ -75,39 +75,20 @@ function HeroSection() {
     >
 
       {/* ── App name / wordmark ──────────────────────────────────────────────
-          Cormorant Garamond at a large fluid size (scales with viewport width).
-          The glimmer child is a skewed semi-transparent bar positioned absolutely
-          inside the text container. The `glimmer` keyframe (defined in index.css)
-          animates its `left` property from -60% to 110%, creating a light sweep. */}
+          Cormorant Garamond at a large fluid size (scales with viewport width). */}
       <div
         style={{
           fontFamily:    'var(--font-display)',
-          fontSize:      'clamp(90px, 13vw, 150px)', // clamp(min, preferred, max)
+          fontSize:      'clamp(90px, 13vw, 150px)',
           fontWeight:    700,
           lineHeight:    1,
           letterSpacing: '-0.02em',
           color:         'var(--acc)',
-          position:      'relative',               // needed so the glimmer can be absolute inside
+          position:      'relative',
           animation:     loaded ? 'fadeUp 0.8s 0.1s ease both' : 'none',
-          // `both` fill-mode means the element stays at the end state after the animation
         }}
       >
-        TBD
-
-        {/* Glimmer: a skewed highlight bar that sweeps across the wordmark once on load */}
-        <div
-          style={{
-            position:   'absolute',
-            top:        0,
-            left:       '-60%',                   // keyframe animates this to 110%
-            width:      '50%',
-            height:     '100%',
-            background: 'linear-gradient(90deg, transparent, rgba(247,230,202,0.3), transparent)',
-            animation:  loaded ? 'glimmer 2s 1s ease both' : 'none',
-            transform:  'skewX(-15deg)',           // slight lean makes it look like a light ray
-            pointerEvents: 'none',                 // doesn't block clicks on the text
-          }}
-        />
+        ABIRIMA
       </div>
 
       {/* ── Tagline ──────────────────────────────────────────────────────────

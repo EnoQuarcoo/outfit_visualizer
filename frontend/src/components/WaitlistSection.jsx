@@ -84,7 +84,7 @@ function WaitlistSection() {
 
   return (
     <section
-      id="waitlist" // this id is what GetStartedBtn scrolls to
+      id="cta" // this id is what GetStartedBtn scrolls to
       style={{
         padding: "120px 48px",
         borderTop: "1px solid var(--border)",
@@ -118,17 +118,23 @@ function WaitlistSection() {
 
           <h2
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(32px, 5vw, 58px)",
-              fontWeight: 600,
-              lineHeight: 1.1,
-              maxWidth: 560,
-              color: "var(--acc)",
+              fontFamily:    "var(--font-display)",
+              fontSize:      "clamp(28px, 3.6vw, 46px)",
+              fontWeight:    500,
+              lineHeight:    1.15,
+              letterSpacing: "-0.01em",
+              maxWidth:      880,
+              color:         "var(--acc)",
+              margin:        0,
+              textWrap:      "balance",
             }}
           >
-            See your outfit
-            <br />
-            before you wear it.
+            <span style={{ display: "block", fontSize: "32.232px", lineHeight: "1.25" }}>
+              For anyone who&apos;s ever stared at a full closet
+            </span>
+            <span style={{ display: "block", fontSize: "32.232px", lineHeight: "1.25" }}>
+              and felt they had nothing to wear.
+            </span>
           </h2>
 
           <p
@@ -205,7 +211,7 @@ function WaitlistSection() {
                 transition: "all 0.2s",
               }}
             >
-              Join Waitlist
+              Sign Up
             </button>
           </form>
 
@@ -276,7 +282,7 @@ function WaitlistSection() {
               >
                 Want to help shape the product?{" "}
                 <span style={{ color: "var(--acc)", fontWeight: 500 }}>
-                  Give us your best feature idea or sign up to be a beta tester.
+                  We&apos;re looking for beta testers to try the very first version.
                 </span>{" "}
               </p>
               <button
@@ -309,7 +315,7 @@ function WaitlistSection() {
                   transition: "all 0.2s",
                 }}
               >
-                Get Involved
+                Apply for early access
               </button>
             </div>
           )}
@@ -334,7 +340,7 @@ function WaitlistSection() {
                   fontFamily: "var(--font-body)",
                 }}
               >
-                We&apos;ll be in touch. Thank you for helping build TBD.
+                We&apos;ll be in touch. Thank you for helping build this.
               </p>
             </div>
           )}

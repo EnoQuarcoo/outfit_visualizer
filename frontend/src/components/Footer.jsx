@@ -21,7 +21,7 @@ function Footer() {
       }}
     >
       {/* Brand name + year */}
-      <span>TBD &copy; 2026</span>
+      <span>ABIRIMA &copy; 2026</span>
 
       {/* Tagline in the script font — intentionally faint */}
       <span
