@@ -3,9 +3,9 @@
 // If you ever add routing (multiple pages), the router would go here.
 import HomePage from "./pages/HomePage";
 import { Routes, Route } from "react-router";
-//import login components
-//import signup components
 import Signup from "./pages/Signup"; 
+import Login from "./pages/Login";
+import WardrobeView from "./pages/WardrobeView";
 
 
 function App() {
@@ -14,8 +14,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="signup" element={<Signup />} />
-        {/* <Route path="login" element={<Login />} />  */}
-        
+        <Route path="login" element={<Login />} /> 
+        <Route path="/wardrobe" element={<WardrobeView/>} />
       </Routes>
     </>
   );
