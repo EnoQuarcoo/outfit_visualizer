@@ -5,10 +5,10 @@
 // At launch, when the waitlist becomes the full app, you'll replace
 // WaitlistSection here with your authenticated app shell — nothing else changes.
 
-import HeroSection         from './components/HeroSection';
-import VisualizationSection from './components/VisualizationSection';
-import WaitlistSection      from './components/WaitlistSection';
-import Footer               from './components/Footer';
+import HeroSection         from '../components/HeroSection';
+import VisualizationSection from '../components/VisualizationSection';
+import WaitlistSection      from '../components/WaitlistSection';
+import Footer               from '../components/Footer';
 
 function HomePage() {
   return (
