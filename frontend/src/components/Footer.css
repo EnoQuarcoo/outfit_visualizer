@@ -1,0 +1,19 @@
+.footer {
+  padding: 28px 48px;
+  border-top: 1px solid var(--border);
+  background: #040404;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: var(--font-body);
+}
+
+.footer-tagline {
+  font-family: var(--font-script);
+  font-size: 16px;
+  color: rgba(247, 230, 202, 0.3);
+}

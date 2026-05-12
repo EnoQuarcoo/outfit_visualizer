@@ -1,0 +1,23 @@
+.input-field {
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 14px 20px;
+  background: rgba(247, 230, 202, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--text);
+  outline: none;
+  border-radius: var(--radius);
+  width: 100%;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.input-field::placeholder {
+  color: var(--muted);
+}
+
+.input-field:focus {
+  border-color: var(--border2);
+  background: rgba(247, 230, 202, 0.07);
+}

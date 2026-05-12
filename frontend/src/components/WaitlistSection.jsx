@@ -1,63 +1,25 @@
 import { useState, useRef } from "react";
 import { useInView } from "../hooks/useInView";
+import './WaitlistSection.css';
 
-// ── SectionReveal ─────────────────────────────────────────────────────────────
-// A wrapper that fades-and-slides its children into view when the user scrolls
-// to this part of the page.
-//
-// How it works:
-//   1. useInView() watches the wrapper element with an IntersectionObserver.
-//   2. When the element enters the viewport, `visible` flips to true.
-//   3. The .reveal CSS class (defined in index.css) starts elements invisible
-//      and shifted down. Adding .visible triggers the CSS transition.
-function SectionReveal({ children, style = {} }) {
+function SectionReveal({ children, className = '' }) {
   const ref = useRef(null);
   const visible = useInView(ref);
 
   return (
-    <div
-      ref={ref}
-      className={`reveal${visible ? " visible" : ""}`}
-      style={style}
-    >
+    <div ref={ref} className={`reveal${visible ? " visible" : ""} ${className}`.trim()}>
       {children}
     </div>
   );
 }
 
-// Shared input style object — reused for both the first name and email fields
-const inputStyle = {
-  fontFamily: "var(--font-body)",
-  fontSize: 16,
-  padding: "14px 20px",
-  background: "rgba(247,230,202,0.05)",
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
-  border: "1px solid var(--border)",
-  color: "var(--text)",
-  outline: "none", // removes the browser's default blue focus ring
-  borderRadius: "var(--radius)",
-  width: 220,
-};
-
-// ── WaitlistSection ───────────────────────────────────────────────────────────
-// The email signup section. Has two states:
-//   'idle'      → shows the form (headline + first name + email + Join Waitlist button)
-//   'submitted' → shows a thank-you message and a secondary beta-tester prompt
-//
-// The beta prompt inside the submitted state also has two states:
-//   'idle'    → shows "Apply for early access" button
-//   'applied' → shows "Application received" confirmation
-
 function WaitlistSection() {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
-  const [formState, setFormState] = useState("idle"); // 'idle' | 'submitted'
-  const [betaState, setBetaState] = useState("idle"); // 'idle' | 'applied'
+  const [formState, setFormState] = useState("idle");
+  const [betaState, setBetaState] = useState("idle");
   const [hasError, setHasError] = useState(false);
 
-  // Only submit if the email field has content (basic guard)
-  // Send post request to backend
   async function handleSubmit(e) {
     e.preventDefault();
     try {
@@ -83,205 +45,74 @@ function WaitlistSection() {
   }
 
   return (
-    <section
-      id="cta" // this id is what GetStartedBtn scrolls to
-      style={{
-        padding: "120px 48px",
-        borderTop: "1px solid var(--border)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 32,
-        textAlign: "center",
-        background: "#040404", // slightly darker than --bg for separation
-      }}
-    >
-      {/* ── Idle state: the signup form ─────────────────────────────────── */}
+    <section id="cta" className="waitlist-section">
+
+      {/* Idle state: the signup form */}
       {formState === "idle" && (
-        // SectionReveal wraps the whole form so it animates in as you scroll to it
-        <SectionReveal
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 28,
-            width: "100%",
-          }}
-        >
-          {/* "BE FIRST" label — text-transform:uppercase is applied by the CSS class */}
-          <div
-            className="section-label"
-            style={{ width: "100%", maxWidth: 480 }}
-          >
+        <SectionReveal className="waitlist-form-reveal">
+
+          <div className="section-label waitlist-section-label">
             Be first
           </div>
 
-          <h2
-            style={{
-              fontFamily:    "var(--font-display)",
-              fontSize:      "clamp(28px, 3.6vw, 46px)",
-              fontWeight:    500,
-              lineHeight:    1.15,
-              letterSpacing: "-0.01em",
-              maxWidth:      880,
-              color:         "var(--acc)",
-              margin:        0,
-              textWrap:      "balance",
-            }}
-          >
-            <span style={{ display: "block", fontSize: "32.232px", lineHeight: "1.25" }}>
+          <h2 className="waitlist-headline">
+            <span className="waitlist-headline-line">
               For anyone who&apos;s ever stared at a full closet
             </span>
-            <span style={{ display: "block", fontSize: "32.232px", lineHeight: "1.25" }}>
+            <span className="waitlist-headline-line">
               and felt they had nothing to wear.
             </span>
           </h2>
 
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 16,
-              fontWeight: 300,
-              maxWidth: 400,
-              color: "var(--acc)",
-            }}
-          >
+          <p className="waitlist-description">
             Join the waitlist and be the first to know when we launch.
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              display: "flex",
-              gap: 10,
-              flexWrap: "wrap", // wraps to a second line on small screens
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
+          <form onSubmit={handleSubmit} className="waitlist-form">
             <input
               value={firstName}
-              onChange={(e) => {
-                setFirstName(e.target.value);
-                setHasError(false);
-              }}
+              onChange={(e) => { setFirstName(e.target.value); setHasError(false); }}
               placeholder="First name"
               type="text"
-              style={inputStyle}
+              className="waitlist-input"
             />
             <input
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setHasError(false);
-              }}
+              onChange={(e) => { setEmail(e.target.value); setHasError(false); }}
               placeholder="Email address"
               type="email"
-              style={{ ...inputStyle, width: 260 }}
+              className="waitlist-input waitlist-input--email"
             />
-            <button
-              type="submit"
-              // These hover handlers are inline because the button needs a different
-              // style from a plain CSS hover — the values reference JS variables.
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(247,230,202,0.2)";
-                e.currentTarget.style.transform = "scale(1.02)";
-                e.currentTarget.style.boxShadow =
-                  "0 8px 28px rgba(247,230,202,0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(247,230,202,0.1)";
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: 15,
-                fontWeight: 500,
-                letterSpacing: "0.06em",
-                padding: "14px 36px",
-                background: "rgba(247,230,202,0.1)",
-                backdropFilter: "blur(14px)",
-                WebkitBackdropFilter: "blur(14px)",
-                border: "1px solid rgba(247,230,202,0.35)",
-                color: "var(--acc)",
-                cursor: "pointer",
-                borderRadius: "var(--radius)",
-                whiteSpace: "nowrap",
-                transition: "all 0.2s",
-              }}
-            >
+            <button type="submit" className="waitlist-btn">
               Sign Up
             </button>
           </form>
 
-          <p
-            style={{
-              fontSize: 13,
-              color: "var(--muted)",
-              fontFamily: "var(--font-body)",
-            }}
-          >
+          <p className="waitlist-disclaimer">
             No spam. Unsubscribe anytime.
           </p>
+
         </SectionReveal>
       )}
 
-      {/* ── Submitted state: thank-you + beta prompt ────────────────────── */}
+      {/* Submitted state: thank-you + beta prompt */}
       {formState === "submitted" && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 28,
-            animation: "fadeUp 0.6s ease both",
-          }}
-        >
-          {/* Primary confirmation */}
-          <div
-            style={{
-              fontFamily: "var(--font-script)",
-              fontSize: 52,
-              color: "var(--acc)",
-            }}
-          >
+        <div className="waitlist-submitted">
+
+          <div className="waitlist-confirmation-heading">
             You&apos;re in. ✦
           </div>
-          <p
-            style={{
-              fontSize: 18,
-              color: "var(--muted)",
-              fontFamily: "var(--font-body)",
-            }}
-          >
+          <p className="waitlist-confirmation-text">
             We&apos;ll reach out the moment TBD is ready.
           </p>
 
-          {/* Thin horizontal rule as a visual separator */}
-          <div style={{ width: 60, height: 1, background: "var(--border)" }} />
+          <div className="waitlist-divider" />
 
-          {/* Beta tester prompt — only shown until the user clicks "Apply" */}
           {betaState === "idle" && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 16,
-                maxWidth: 460,
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 17,
-                  color: "var(--muted)",
-                  lineHeight: 1.6,
-                  fontFamily: "var(--font-body)",
-                }}
-              >
+            <div className="waitlist-beta-prompt">
+              <p className="waitlist-beta-text">
                 Want to help shape the product?{" "}
-                <span style={{ color: "var(--acc)", fontWeight: 500 }}>
+                <span className="waitlist-beta-highlight">
                   We&apos;re looking for beta testers to try the very first version.
                 </span>{" "}
               </p>
@@ -290,71 +121,33 @@ function WaitlistSection() {
                   window.open("https://form.typeform.com/to/kfkR385c", "_blank");
                   setBetaState("applied");
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(247,230,202,0.18)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 20px rgba(247,230,202,0.12)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(247,230,202,0.08)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: 15,
-                  fontWeight: 500,
-                  letterSpacing: "0.06em",
-                  padding: "14px 36px",
-                  background: "rgba(247,230,202,0.08)",
-                  backdropFilter: "blur(14px)",
-                  WebkitBackdropFilter: "blur(14px)",
-                  border: "1px solid rgba(247,230,202,0.3)",
-                  color: "var(--acc)",
-                  cursor: "pointer",
-                  borderRadius: "var(--radius)",
-                  transition: "all 0.2s",
-                }}
+                className="beta-btn"
               >
                 Apply for early access
               </button>
             </div>
           )}
 
-          {/* Beta application confirmation */}
           {betaState === "applied" && (
-            <div style={{ animation: "fadeUp 0.5s ease both" }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-script)",
-                  fontSize: 36,
-                  color: "var(--acc)",
-                  marginBottom: 8,
-                }}
-              >
+            <div className="waitlist-applied">
+              <div className="waitlist-applied-heading">
                 Application received ✦
               </div>
-              <p
-                style={{
-                  fontSize: 16,
-                  color: "var(--muted)",
-                  fontFamily: "var(--font-body)",
-                }}
-              >
+              <p className="waitlist-applied-text">
                 We&apos;ll be in touch. Thank you for helping build this.
               </p>
             </div>
           )}
+
         </div>
       )}
 
-      {/* ── If Error detected on submission ──────────────────────────────── */}
       {hasError && (
-        <p
-          style={{ color: "red", fontFamily: "var(--font-body)", fontSize: 14 }}
-        >
+        <p className="waitlist-error">
           Something went wrong. Please try again.
         </p>
       )}
+
     </section>
   );
 }

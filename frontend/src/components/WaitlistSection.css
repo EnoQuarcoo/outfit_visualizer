@@ -1,0 +1,196 @@
+.waitlist-section {
+  padding: 120px 48px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  text-align: center;
+  background: #040404;
+}
+
+.waitlist-form-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+
+.waitlist-section-label {
+  width: 100%;
+  max-width: 480px;
+}
+
+.waitlist-headline {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.6vw, 46px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 880px;
+  color: var(--acc);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.waitlist-headline-line {
+  display: block;
+  font-size: 32.232px;
+  line-height: 1.25;
+}
+
+.waitlist-description {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 300;
+  max-width: 400px;
+  color: var(--acc);
+}
+
+.waitlist-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.waitlist-input {
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 14px 20px;
+  background: rgba(247, 230, 202, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--text);
+  outline: none;
+  border-radius: var(--radius);
+  width: 220px;
+}
+
+.waitlist-input--email {
+  width: 260px;
+}
+
+.waitlist-btn {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 14px 36px;
+  background: rgba(247, 230, 202, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(247, 230, 202, 0.35);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.waitlist-btn:hover {
+  background: rgba(247, 230, 202, 0.2);
+  transform: scale(1.02);
+  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.15);
+}
+
+.waitlist-disclaimer {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
+/* Submitted state */
+
+.waitlist-submitted {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.waitlist-confirmation-heading {
+  font-family: var(--font-script);
+  font-size: 52px;
+  color: var(--acc);
+}
+
+.waitlist-confirmation-text {
+  font-size: 18px;
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
+.waitlist-divider {
+  width: 60px;
+  height: 1px;
+  background: var(--border);
+}
+
+.waitlist-beta-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 460px;
+}
+
+.waitlist-beta-text {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-family: var(--font-body);
+}
+
+.waitlist-beta-highlight {
+  color: var(--acc);
+  font-weight: 500;
+}
+
+.beta-btn {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 14px 36px;
+  background: rgba(247, 230, 202, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(247, 230, 202, 0.3);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+}
+
+.beta-btn:hover {
+  background: rgba(247, 230, 202, 0.18);
+  box-shadow: 0 4px 20px rgba(247, 230, 202, 0.12);
+}
+
+.waitlist-applied {
+  animation: fadeUp 0.5s ease both;
+}
+
+.waitlist-applied-heading {
+  font-family: var(--font-script);
+  font-size: 36px;
+  color: var(--acc);
+  margin-bottom: 8px;
+}
+
+.waitlist-applied-text {
+  font-size: 16px;
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
+.waitlist-error {
+  color: red;
+  font-family: var(--font-body);
+  font-size: 14px;
+}

@@ -9,148 +9,51 @@ import modelSrc from '../assets/MODEL_IMG.png'
 import render1Src from "../assets/RENDER1_SRC.png"
 import render2Src from "../assets/RENDER2_SRC.png"
 import render3Src from "../assets/RENDER3_SRC.png"
+import './VisualizationSection.css';
 
+const MODEL_SRC      = modelSrc;
+const TANK_SRC       = tankSrc;
+const JEANS_SRC      = jeansSrc;
+const SWEATER_SRC    = sweaterSrc;
+const SKIRT_SRC      = skirtSrc;
+const FLAT_KENTE_SRC = kenteSrc;
+const RENDER1_SRC    = render1Src;
+const RENDER2_SRC    = render2Src;
+const RENDER3_SRC    = render3Src;
 
-// ── Image slots ───────────────────────────────────────────────────────────────
-// These constants are where you'll plug in real images later.
-// Once you have the asset files, replace each empty string with an import, e.g.:
-//   import modelImg from '../assets/model.png';
-//   const MODEL_SRC = modelImg;
-//
-// For now they're empty strings — the <img> tags render but show nothing,
-// which is fine while we build the structure.
-const MODEL_SRC      = modelSrc; // the base model photo (no clothing)
-const TANK_SRC       = tankSrc; // flat-lay white tank top
-const JEANS_SRC      = jeansSrc; // flat-lay baggy jeans
-const SWEATER_SRC    = sweaterSrc; // flat-lay varsity cardigan
-const SKIRT_SRC      = skirtSrc; // flat-lay mini skirt
-const FLAT_KENTE_SRC = kenteSrc; // flat-lay kente dress
-const RENDER1_SRC    = render1Src; // AI-generated model wearing tank + jeans
-const RENDER2_SRC    = render2Src; // AI-generated model wearing sweater + skirt
-const RENDER3_SRC    = render3Src; // AI-generated model wearing kente dress
-
-// ── Math helpers ──────────────────────────────────────────────────────────────
-// These are small pure functions used to calculate opacity and position values
-// from the scroll progress (a number from 0 to 1).
-
-// Clamp keeps a value inside a [lo, hi] range
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-
-// Ramp maps the global progress p into a 0→1 value within the window [a, b].
-// Example: ramp(0.5, 0.4, 0.6) → 0.5 (halfway through that window)
 function ramp(p, a, b) { return clamp((p - a) / (b - a), 0, 1); }
-
-// Ease-in-out smooths a linear 0→1 value into an S-curve so motion doesn't
-// look mechanical (starts slow, speeds up, slows down again at the end).
 function eio(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
-
-// Convenience: apply ease-in-out over a progress window
 function er(p, a, b) { return eio(ramp(p, a, b)); }
 
-// ── SideCard ──────────────────────────────────────────────────────────────────
-// A small thumbnail card shown in the left/right sidebars.
-// `active` is true when this garment's outfit is currently on display.
 function SideCard({ item, active }) {
   return (
-    <div
-      style={{
-        width:      82,
-        padding:    '7px 7px 5px',
-        borderRadius: 8,
-        border:     `1px solid ${active ? 'rgba(247,230,202,0.5)' : 'rgba(247,230,202,0.1)'}`,
-        background: active ? 'rgba(247,230,202,0.09)' : 'rgba(247,230,202,0.02)',
-        boxShadow:  active ? '0 0 28px rgba(247,230,202,0.18)' : 'none',
-        transform:  active ? 'scale(1.1)' : 'scale(0.92)',
-        opacity:    active ? 1 : 0.35,
-        transition: 'all 0.4s ease',
-      }}
-    >
-      <img
-        src={item.src}
-        alt={item.name}
-        style={{
-          width:          '100%',
-          height:         72,
-          objectFit:      'contain',
-          objectPosition: 'center top',
-          display:        'block',
-        }}
-      />
-      <div
-        style={{
-          fontSize:      8.5,
-          color:         active ? 'var(--acc)' : 'var(--muted)',
-          textAlign:     'center',
-          marginTop:     4,
-          fontFamily:    'var(--font-body)',
-          letterSpacing: '0.04em',
-          lineHeight:    1.3,
-        }}
-      >
+    <div className={`side-card ${active ? 'side-card--active' : 'side-card--inactive'}`}>
+      <img src={item.src} alt={item.name} className="side-card-img" />
+      <div className={`side-card-label ${active ? 'side-card-label--active' : 'side-card-label--inactive'}`}>
         {item.name}
       </div>
     </div>
   );
 }
 
-// ── VisualizationSection ──────────────────────────────────────────────────────
-// A "sticky scroll" section: the section itself is 500vh tall (five screen-heights),
-// but the visible panel inside it stays pinned to the top of the viewport while
-// the user scrolls. We track how far through the 500vh the user is (0→1) and use
-// that number to drive all the animations: which garments are visible, how far
-// they've slid toward the model, and whether the AI render has faded in.
-//
-// Three outfits play out in sequence:
-//   Outfit 1 — White Tank (left) + Baggy Jeans (right) → AI render 1
-//   Outfit 2 — Varsity Cardigan (left) + Mini Skirt (right) → AI render 2
-//   Outfit 3 — Kente Dress (left only) → AI render 3
-
 function VisualizationSection() {
   const sectionRef = useRef(null);
-
-  // progress: 0 = user at the very top of this section, 1 = at the very bottom
   const [progress, setProgress] = useState(0);
 
-  // Scroll listener — recalculates progress whenever the user scrolls.
-  // We also need to check FEATURES here so we don't add a scroll listener
-  // when the section is disabled. (Hooks must always be called, so the check
-  // happens inside useEffect, not before the hooks.)
   useEffect(() => {
     function onScroll() {
       const el = sectionRef.current;
       if (!el) return;
-      // scrollable = total scroll distance through this section
       const scrollable = el.offsetHeight - window.innerHeight;
-      // getBoundingClientRect().top is negative once we've scrolled past the top
       const p = Math.max(0, Math.min(1, -el.getBoundingClientRect().top / scrollable));
       setProgress(p);
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // set correct initial value (in case the user reloads mid-scroll)
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // ── Scroll timeline ────────────────────────────────────────────────────────
-  // Each outfit has three phases: slide-in, swap (pieces → render), exit.
-  // The numbers (e.g. 0.08, 0.20) are progress values — fractions of the
-  // total scroll distance when each phase starts and ends.
-  //
-  // Outfit 1 — White Tank + Baggy Jeans
-  //   0.08 → 0.20   garment pieces slide in from the sides
-  //   0.20 → 0.27   pieces fade out, AI render fades in (the "magic moment")
-  //   0.27 → 0.44   AI render holds on screen
-  //   0.44 → 0.52   AI render fades, bare model returns
-  //
-  // Outfit 2 — Varsity Cardigan + Mini Skirt
-  //   0.52 → 0.64   slide in
-  //   0.64 → 0.71   swap → render 2
-  //   0.71 → 0.84   hold
-  //   0.84 → 0.90   exit
-  //
-  // Outfit 3 — Kente Dress (left side only, no bottom piece)
-  //   0.90 → 0.97   flat kente slides in from left
-  //   0.97 → 1.00   swap → render 3 (stays visible — end of the section)
 
   const slide1  = er(progress, 0.08, 0.20);
   const swap1   = er(progress, 0.20, 0.27);
@@ -164,30 +67,17 @@ function VisualizationSection() {
   const swap3   = er(progress, 0.97, 1.00);
   const pieces3 = slide3 * (1 - swap3);
 
-  // Each render appears on its swap and is replaced by the next — no return to nude model between outfits
   const render1 = swap1 * (1 - swap2);
   const render2 = swap2 * (1 - swap3);
   const render3 = swap3;
 
-  // The base model photo fades out whenever any AI render is showing
   const anyRender    = Math.min(1, render1 + render2 + render3);
   const modelOpacity = 1 - anyRender;
 
-  // ── Sliding positions ──────────────────────────────────────────────────────
-  // Garment pieces travel from the edge of the screen (±42vw from centre) to a
-  // resting point near the model (±9vw). The slide value (0→1) interpolates between.
   const EDGE = 42, STOP = 9;
-  // fromLeft returns a negative vw (left of centre), moving right as p increases
   const fromLeft  = (p) => -(EDGE - (EDGE - STOP) * p);
-  // fromRight returns a positive vw (right of centre), moving left as p increases
   const fromRight = (p) =>   (EDGE - (EDGE - STOP) * p);
 
-  // ── Active outfit index ────────────────────────────────────────────────────
-  // Determines which sidebar thumbnail card should be highlighted.
-  //   -1 = no outfit active yet
-  //    0 = outfit 1 (tank + jeans)
-  //    1 = outfit 2 (sweater + skirt)
-  //    2 = outfit 3 (kente)
   const activeOutfit =
       render3 > 0.2 || pieces3 > 0.1 ? 2
     : render2 > 0.2 || pieces2 > 0.1 ? 1
@@ -200,12 +90,9 @@ function VisualizationSection() {
     : activeOutfit === 2 ? 'Kente Dress'
     : '';
 
-  // The left sidebar fades out entirely when render3 is fully shown.
-  // The right sidebar (bottoms) also hides for outfit 3 since the kente is a full dress.
   const sidebarOpacity      = render3 > 0.7 ? 0 : 1;
   const rightSidebarOpacity = sidebarOpacity;
 
-  // Garment data for each sidebar column
   const leftItems = [
     { name: 'White Tank',       src: TANK_SRC,       idx: 0 },
     { name: 'Varsity Cardigan', src: SWEATER_SRC,    idx: 1 },
@@ -217,408 +104,172 @@ function VisualizationSection() {
   ];
 
   return (
-    // 500vh = five screen-heights of scroll distance for the animation to play through
-    <section
-      ref={sectionRef}
-      style={{ height: '500vh', borderTop: '1px solid var(--border)', position: 'relative' }}
-    >
-      {/* ── Sticky panel ────────────────────────────────────────────────────
-          position:sticky + top:0 means this div pins to the top of the viewport
-          while the parent section is in the scroll range. height:100vh fills the screen.
-          overflow:hidden prevents sliding garment images from causing scrollbars. */}
-      <div
-        style={{
-          position: 'sticky',
-          top:      0,
-          height:   '100vh',
-          overflow: 'hidden',
-          background: 'var(--bg)',
-        }}
-      >
+    <section ref={sectionRef} className="viz-section">
+      <div className="viz-sticky">
 
-        {/* ── Section header ─────────────────────────────────────────────── */}
-        <div
-          style={{
-            position:      'absolute',
-            top:           36,
-            left:          0,
-            right:         0,
-            textAlign:     'center',
-            zIndex:        10,
-            pointerEvents: 'none', // doesn't block scroll
-          }}
-        >
-          <div className="section-label" style={{ maxWidth: 280, margin: '0 auto 8px' }}>
+        <div className="viz-header">
+          <div className="section-label viz-section-label">
             SCROLL TO DRESS
           </div>
         </div>
 
-        {/* ── Left sidebar — tops + kente ───────────────────────────────── */}
+        {/* Left sidebar — tops + kente */}
         <div
-          style={{
-            position:   'absolute',
-            left:       '3%',
-            top:        '45%',
-            transform:  'translateY(-50%)',
-            zIndex:     6,
-            display:    'flex',
-            flexDirection: 'column',
-            gap:        12,
-            alignItems: 'center',
-            opacity:    sidebarOpacity,
-            transition: 'opacity 0.6s',
-          }}
+          className="viz-sidebar viz-sidebar--left"
+          style={{ opacity: sidebarOpacity }}
         >
-          <div
-            style={{
-              fontSize:      9,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color:         'var(--muted)',
-              fontFamily:    'var(--font-body)',
-              marginBottom:  2,
-            }}
-          >
-            Tops
-          </div>
+          <div className="viz-sidebar-label">Tops</div>
           {leftItems.map((item) => (
             <SideCard key={item.idx} item={item} active={activeOutfit === item.idx} />
           ))}
         </div>
 
-        {/* ── Right sidebar — bottoms ───────────────────────────────────── */}
+        {/* Right sidebar — bottoms */}
         <div
-          style={{
-            position:   'absolute',
-            right:      '3%',
-            top:        '45%',
-            transform:  'translateY(-50%)',
-            zIndex:     6,
-            display:    'flex',
-            flexDirection: 'column',
-            gap:        12,
-            alignItems: 'center',
-            opacity:    rightSidebarOpacity,
-            transition: 'opacity 0.6s',
-          }}
+          className="viz-sidebar viz-sidebar--right"
+          style={{ opacity: rightSidebarOpacity }}
         >
-          <div
-            style={{
-              fontSize:      9,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color:         'var(--muted)',
-              fontFamily:    'var(--font-body)',
-              marginBottom:  2,
-            }}
-          >
-            Bottoms
-          </div>
+          <div className="viz-sidebar-label">Bottoms</div>
           {rightItems.map((item) => (
             <SideCard key={item.idx} item={item} active={activeOutfit === item.idx} />
           ))}
         </div>
 
-        {/* ── Centre stage ─────────────────────────────────────────────────
-            This is where the model, renders, and sliding garment pieces all live.
-            Positioned at 50% from left and 52% from top (slightly below centre
-            to account for the header above). */}
-        <div
-          style={{
-            position:  'absolute',
-            left:      '50%',
-            top:       '47%',
-            transform: 'translate(-50%, -50%)',
-            zIndex:    5,
-          }}
-        >
-          {/* Ambient glow — a soft radial gradient behind the model that pulses */}
-          <div
-            style={{
-              position:  'absolute',
-              top:       '0%',
-              left:      '50%',
-              transform: 'translateX(-50%)',
-              width:     '180%',
-              height:    '100%',
-              background: 'radial-gradient(ellipse 45% 55% at 50% 50%, rgba(247,230,202,0.12) 0%, rgba(247,230,202,0.05) 40%, transparent 75%)',
-              animation:  'glow-pulse 3s ease-in-out infinite',
-              pointerEvents: 'none',
-            }}
-          />
+        {/* Centre stage */}
+        <div className="viz-center-stage">
+          <div className="viz-ambient-glow" />
 
-          {/* ── Model container ────────────────────────────────────────────
-              Sized to the model image's aspect ratio: 752px wide × 1388px tall.
-              In vh units: width = (752/1388) × 68vh ≈ 36.84vh, height = 68vh.
+          <div className="viz-model-container">
 
-              The sliding garment pieces live inside this outer div but OUTSIDE
-              the inner clipped div, so they can visually travel in from off-screen
-              without being cut off. Only the model photo and AI renders are
-              inside the clipped area. */}
-          <div style={{ position: 'relative', width: '36.84vh', height: '68vh' }}>
+            <div className="viz-inner-clip">
 
-            {/* Inner clipped area — overflow:hidden stops render images from bleeding out */}
-            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-
-              {/* Base model — fades to invisible whenever an AI render is showing */}
+              {/* Base model */}
               <img
                 src={MODEL_SRC}
                 alt="model"
-                style={{
-                  position:   'absolute',
-                  width:      '100%',
-                  height:     '100%',
-                  objectFit:  'cover',
-                  top:        0,
-                  left:       0,
-                  zIndex:     1,
-                  opacity:    modelOpacity,
-                  transition: 'opacity 0.3s ease',
-                }}
+                className="viz-model-img"
+                style={{ opacity: modelOpacity }}
               />
 
-              {/* ── AI renders ─────────────────────────────────────────────
-                  Each render image is scaled so the person inside it aligns
-                  exactly with the base model. The sizing math accounts for
-                  how much of each render image is empty space around the person.
-
-                  Render 1: person fills 78.6% of image height, starts at 7.4% from top
-                    → image height = 68vh × (59.3/46.6) ≈ 75.44vh  (person height / person%)
-                    → image top    = 8.5vh - (0.074 × 75.44vh) ≈ 2.92vh */}
+              {/* AI render 1 */}
               <img
                 src={RENDER1_SRC}
                 alt=""
-                style={{
-                  position:      'absolute',
-                  height:        '75.44vh',
-                  width:         'auto',
-                  top:           '2.92vh',
-                  left:          '50%',
-                  transform:     'translateX(-50%)',
-                  zIndex:        2,
-                  opacity:       render1,
-                  transition:    'opacity 0.3s ease',
-                  pointerEvents: 'none',
-                }}
+                className="viz-render viz-render--1"
+                style={{ opacity: render1 }}
               />
 
-              {/* Render 2: person fills 92.8% of image height, starts at 6.9% from top
-                    → height = 63.9vh, top = 4.09vh */}
+              {/* AI render 2 */}
               <img
                 src={RENDER2_SRC}
                 alt=""
-                style={{
-                  position:      'absolute',
-                  height:        '63.9vh',
-                  width:         'auto',
-                  top:           '4.09vh',
-                  left:          '50%',
-                  transform:     'translateX(-50%)',
-                  zIndex:        2,
-                  opacity:       render2,
-                  transition:    'opacity 0.3s ease',
-                  pointerEvents: 'none',
-                }}
+                className="viz-render viz-render--2"
+                style={{ opacity: render2 }}
               />
 
-              {/* Render 3: person fills 96.9% of image height, starts at 1.6% from top
-                    → height = 61.2vh, top = 7.52vh */}
+              {/* AI render 3 */}
               <img
                 src={RENDER3_SRC}
                 alt=""
-                style={{
-                  position:      'absolute',
-                  height:        '61.2vh',
-                  width:         'auto',
-                  top:           '7.52vh',
-                  left:          '50%',
-                  transform:     'translateX(-50%)',
-                  zIndex:        3,
-                  opacity:       render3,
-                  transition:    'opacity 0.3s ease',
-                  pointerEvents: 'none',
-                }}
+                className="viz-render viz-render--3"
+                style={{ opacity: render3 }}
               />
 
-            </div>{/* end inner clip */}
+            </div>
 
-            {/* ── Sliding garment pieces ─────────────────────────────────
-                Gated by FEATURES.vizAnimation. When false, the model and AI
-                renders still work — only these flat-lay images are hidden.
-
-                Each piece uses translateX(calc(-50% + Nvw)):
-                  -50%  centres the image on left:50%
-                  Nvw   is a signed offset — negative for left pieces, positive for right
-
-                `pieces1` opacity is the combined slide × (1 - swap) value,
-                so the piece is fully visible while sliding in, then fades out
-                as the AI render fades in. */}
             {FEATURES.vizAnimation && (
               <>
-                {/* Outfit 1 — White Tank slides in from the LEFT */}
+                {/* Outfit 1 — White Tank */}
                 <img
                   src={TANK_SRC}
                   alt=""
+                  className="viz-garment viz-garment--tank"
                   style={{
-                    height:        '22.41vh',
-                    width:         'auto',
-                    position:      'absolute',
-                    top:           '24.29%',
-                    left:          '50%',
-                    transform:     `translateX(calc(-50% + ${fromLeft(slide1)}vw))`,
-                    zIndex:        4,
-                    opacity:       pieces1,
-                    pointerEvents: 'none',
-                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                    transform: `translateX(calc(-50% + ${fromLeft(slide1)}vw))`,
+                    opacity:   pieces1,
                   }}
                 />
 
-                {/* Outfit 1 — Baggy Jeans slide in from the RIGHT */}
+                {/* Outfit 1 — Baggy Jeans */}
                 <img
                   src={JEANS_SRC}
                   alt=""
+                  className="viz-garment viz-garment--jeans"
                   style={{
-                    height:        '33.48vh', // covers beltline to feet
-                    width:         'auto',
-                    position:      'absolute',
-                    top:           '50.38%',  // aligns with beltline zone
-                    left:          '50%',
-                    transform:     `translateX(calc(-50% + ${fromRight(slide1)}vw))`,
-                    zIndex:        4,
-                    opacity:       pieces1,
-                    pointerEvents: 'none',
-                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                    transform: `translateX(calc(-50% + ${fromRight(slide1)}vw))`,
+                    opacity:   pieces1,
                   }}
                 />
 
-                {/* Outfit 2 — Varsity Cardigan slides in from the LEFT */}
+                {/* Outfit 2 — Varsity Cardigan */}
                 <img
                   src={SWEATER_SRC}
                   alt=""
+                  className="viz-garment viz-garment--sweater"
                   style={{
-                    height:        '43.34vh',
-                    width:         'auto',
-                    position:      'absolute',
-                    top:           '14.6%',
-                    left:          '50%',
-                    transform:     `translateX(calc(-50% + ${fromLeft(slide2)}vw))`,
-                    zIndex:        4,
-                    opacity:       pieces2,
-                    pointerEvents: 'none',
-                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                    transform: `translateX(calc(-50% + ${fromLeft(slide2)}vw))`,
+                    opacity:   pieces2,
                   }}
                 />
 
-                {/* Outfit 2 — Mini Skirt slides in from the RIGHT */}
+                {/* Outfit 2 — Mini Skirt */}
                 <img
                   src={SKIRT_SRC}
                   alt=""
+                  className="viz-garment viz-garment--skirt"
                   style={{
-                    height:        '18vh',
-                    width:         '16.97vh',
-                    position:      'absolute',
-                    top:           '43.59%',
-                    left:          '50%',
-                    transform:     `translateX(calc(-50% + ${fromRight(slide2)}vw))`,
-                    zIndex:        4,
-                    opacity:       pieces2,
-                    pointerEvents: 'none',
-                    filter:        'drop-shadow(0 6px 24px rgba(0,0,0,0.5))',
+                    transform: `translateX(calc(-50% + ${fromRight(slide2)}vw))`,
+                    opacity:   pieces2,
                   }}
                 />
 
-                {/* Outfit 3 — Flat Kente slides in from the LEFT (full-length, no bottom piece) */}
+                {/* Outfit 3 — Flat Kente */}
                 <img
                   src={FLAT_KENTE_SRC}
                   alt=""
+                  className="viz-garment viz-garment--kente"
                   style={{
-                    height:        '70vh',
-                    width:         '32.06vh',
-                    position:      'absolute',
-                    top:           '15%',
-                    left:          '50%',
-                    transform:     `translateX(calc(-50% + ${fromLeft(slide3)}vw))`,
-                    zIndex:        4,
-                    opacity:       pieces3,
-                    pointerEvents: 'none',
-                    // Warm amber glow for the kente pattern
-                    filter:        'drop-shadow(0 8px 32px rgba(247,140,0,0.4))',
+                    transform: `translateX(calc(-50% + ${fromLeft(slide3)}vw))`,
+                    opacity:   pieces3,
                   }}
                 />
               </>
             )}
 
-          </div>{/* end model container */}
+          </div>
 
-          {/* Active outfit name below the model */}
-          <div style={{ textAlign: 'center', marginTop: 40, minHeight: 36 }}>
+          <div className="viz-outfit-label-container">
             {outfitLabel && (
-              <div
-                key={outfitLabel}
-                style={{
-                  fontFamily: 'var(--font-script)',
-                  fontSize:   'clamp(16px, 2.2vw, 26px)',
-                  color:      'var(--acc)',
-                  animation:  'fadeIn 0.5s ease',
-                }}
-              >
+              <div key={outfitLabel} className="viz-outfit-label">
                 {outfitLabel}
               </div>
             )}
           </div>
 
-        </div>{/* end centre stage */}
+        </div>
 
-        {/* ── Progress pips ───────────────────────────────────────────────
-            Three dots at the bottom, one per outfit. The active pip stretches
-            into a pill shape (width: 28px → 8px). */}
-        <div
-          style={{
-            position:        'absolute',
-            bottom:          44,
-            left:            0,
-            right:           0,
-            display:         'flex',
-            justifyContent:  'center',
-            gap:             8,
-            zIndex:          10,
-          }}
-        >
+        {/* Progress pips */}
+        <div className="viz-progress-pips">
           {[[render1, pieces1], [render2, pieces2], [render3, pieces3]].map(([r, p], i) => (
             <div
               key={i}
+              className="viz-pip"
               style={{
                 width:      (r + p) > 0.3 ? 28 : 8,
-                height:     8,
-                borderRadius: 4,
                 background: (r + p) > 0.3 ? 'var(--acc)' : 'rgba(247,230,202,0.2)',
-                transition: 'all 0.4s',
               }}
             />
           ))}
         </div>
 
-        {/* "Keep scrolling" hint — disappears once the kente render is fully shown */}
         <div
-          style={{
-            position:      'absolute',
-            bottom:        24,
-            left:          0,
-            right:         0,
-            textAlign:     'center',
-            fontSize:      11,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color:         'var(--muted)',
-            fontFamily:    'var(--font-body)',
-            opacity:       render3 > 0.8 ? 0 : 1,
-            transition:    'opacity 0.5s',
-          }}
+          className="viz-keep-scrolling"
+          style={{ opacity: render3 > 0.8 ? 0 : 1 }}
         >
           keep scrolling →
         </div>
 
-      </div>{/* end sticky panel */}
+      </div>
     </section>
   );
 }

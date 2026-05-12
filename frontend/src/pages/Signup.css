@@ -1,0 +1,131 @@
+/* ── Signup page ──────────────────────────────────────────────────────────────
+   Full-viewport centered form. Mirrors the landing page's dark + warm-cream
+   aesthetic: --bg background, glass inputs, cream-bordered buttons.
+────────────────────────────────────────────────────────────────────────────── */
+
+.signup-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: var(--bg);
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient glow — same radial technique as the visualization section */
+.signup-page::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 640px;
+  height: 560px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(247, 230, 202, 0.07) 0%,
+    rgba(247, 230, 202, 0.02) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Constrain and layer all direct children above the glow */
+.signup-page > * {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Wordmark above the form — Cormorant Garamond, matches the hero wordmark */
+.signup-wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6vw, 52px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--acc);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+/* Decorative script tagline below wordmark */
+.signup-tagline {
+  font-family: var(--font-script);
+  font-size: 20px;
+  color: rgba(247, 230, 202, 0.45);
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+/* Section divider line above the form fields */
+.signup-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 6px;
+}
+
+/* Extra breathing room between last input and first button */
+.signup-page input:last-of-type {
+  margin-bottom: 8px;
+}
+
+/* Secondary button (Google) is slightly more subdued than the primary Submit */
+.signup-page button + button {
+  background: rgba(247, 230, 202, 0.05);
+  border-color: rgba(247, 230, 202, 0.2);
+}
+
+.signup-page button + button:hover {
+  background: rgba(247, 230, 202, 0.12);
+  border-color: rgba(247, 230, 202, 0.35);
+  box-shadow: 0 4px 20px rgba(247, 230, 202, 0.1);
+}
+
+/* Message containers share the same max-width as the inputs */
+.signup-error p {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #ff6b6b;
+  text-align: center;
+  padding: 12px 18px;
+  background: rgba(255, 107, 107, 0.06);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: var(--radius);
+  line-height: 1.5;
+}
+
+.signup-success p {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--acc);
+  text-align: center;
+  padding: 12px 18px;
+  background: rgba(247, 230, 202, 0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  line-height: 1.5;
+}
+
+.signup-signin-prompt {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 6px;
+}
+
+.signup-signin-link {
+  color: var(--acc);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.signup-signin-link:hover {
+  opacity: 0.75;
+}
