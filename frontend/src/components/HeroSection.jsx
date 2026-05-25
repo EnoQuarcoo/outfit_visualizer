@@ -27,7 +27,7 @@ function HeroSection() {
     <section className="hero-section">
 
       <div className={`hero-wordmark${cls}`}>
-        ABIRIMA
+        ABRIMA
       </div>
 
       <div className={`hero-tagline${cls}`}>

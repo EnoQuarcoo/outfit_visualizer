@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const WardrobeView = () => {
-  return (
-    <div>WardrobeView </div>
-  )
-}
+  return <div>WardrobeView </div>;
+};
 
-export default WardrobeView
+export default WardrobeView;
