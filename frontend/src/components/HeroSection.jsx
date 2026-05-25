@@ -88,7 +88,7 @@ function HeroSection() {
           animation:     loaded ? 'fadeUp 0.8s 0.1s ease both' : 'none',
         }}
       >
-        ABIRIMA
+        ABRIMA
       </div>
 
       {/* ── Tagline ──────────────────────────────────────────────────────────
