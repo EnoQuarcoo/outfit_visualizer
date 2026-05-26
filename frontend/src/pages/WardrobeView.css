@@ -1,0 +1,181 @@
+/* ── Page shell ──────────────────────────────────────────────────────────────
+   Full-viewport container. Flex column so margin:auto on the empty-state
+   button can vertically centre it when wardrobe is empty. */
+.wardrobe-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: 48px 24px 112px; /* bottom clears the fixed FAB */
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ambient glow — same radial technique as Login / Signup */
+.wardrobe-page::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  height: 600px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(247, 230, 202, 0.06) 0%,
+    rgba(247, 230, 202, 0.02) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Lift all direct children above the glow layer */
+.wardrobe-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────────
+   margin:auto in a flex container centres the button both axes. */
+.wardrobe-empty-btn {
+  margin: auto;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 14px 40px;
+  background: rgba(247, 230, 202, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(247, 230, 202, 0.35);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.wardrobe-empty-btn:hover {
+  background: rgba(247, 230, 202, 0.2);
+  border-color: rgba(247, 230, 202, 0.5);
+  transform: scale(1.02);
+  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.15);
+}
+
+/* ── Category sections ───────────────────────────────────────────────────────
+   CSS grid where the h2 spans all columns as a full-width heading row,
+   followed by auto-filling item cells. */
+.wardrobe-category {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 40px;
+}
+
+.wardrobe-category h2 {
+  grid-column: 1 / -1;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 600;
+  color: var(--acc);
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Item card ───────────────────────────────────────────────────────────────
+   Glass-morphism card matching the .glass utility class pattern. */
+.wardrobe-item {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wardrobe-item:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(247, 230, 202, 0.08);
+}
+
+.wardrobe-item img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+/* Stripe placeholder when image_url is empty — reuses the .stripe pattern */
+.wardrobe-item img[src=""],
+.wardrobe-item img:not([src]) {
+  min-height: 140px;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(247, 230, 202, 0.04) 5px,
+    rgba(247, 230, 202, 0.04) 6px
+  );
+}
+
+.wardrobe-item p {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text);
+  padding: 10px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Floating action button ──────────────────────────────────────────────────
+   Fixed to bottom-centre of viewport. Circular glass pill matching the
+   glass-strong utility, with the same hover glow as .btn. */
+.wardrobe-fab {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+
+  width: 56px;
+  height: 56px;
+  padding: 0;
+
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+
+  background: rgba(247, 230, 202, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(247, 230, 202, 0.4);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease;
+}
+
+.wardrobe-fab:hover {
+  background: rgba(247, 230, 202, 0.22);
+  border-color: rgba(247, 230, 202, 0.55);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 8px 32px rgba(247, 230, 202, 0.2);
+}
