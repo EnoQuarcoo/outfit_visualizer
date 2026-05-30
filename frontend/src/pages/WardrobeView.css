@@ -36,6 +36,53 @@
   z-index: 1;
 }
 
+/* ── Model photo ─────────────────────────────────────────────────────────────
+   Portrait-ratio photo centred at 40-50% of page width, framed with the
+   same border treatment used on active glass cards. */
+.wardrobe-model-photo {
+  display: block;
+  width: clamp(220px, 45%, 420px);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: top center;
+  margin: 0 auto 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Model photo placeholder ─────────────────────────────────────────────────
+   Same size and shape as the photo. Dashed border signals "upload here"
+   without relying on any browser-default button chrome. */
+.wardrobe-model-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  width: clamp(220px, 45%, 420px);
+  aspect-ratio: 3 / 4;
+  margin: 0 auto 40px;
+
+  background: transparent;
+  border: 1.5px dashed rgba(247, 230, 202, 0.22);
+  border-radius: 10px;
+
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wardrobe-model-placeholder:hover {
+  border-color: rgba(247, 230, 202, 0.42);
+  background: rgba(247, 230, 202, 0.03);
+  color: var(--text);
+}
+
 /* ── Empty state ─────────────────────────────────────────────────────────────
    margin:auto in a flex container centres the button both axes. */
 .wardrobe-empty-btn {
