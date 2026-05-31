@@ -1,26 +1,11 @@
 import { useState, useEffect, useRef, React } from "react";
 import { supabase } from "../SupabaseClient";
 import "./WardrobeView.css";
+import { config } from "../config";
 
 const WardrobeView = () => {
   // ─── STATE ───────────────────────────────────────────────────────────────
   const [wardrobe, setWardrobe] = useState([]);
-  // const [wardrobe, setWardrobe] = useState([
-  //   {
-  //     id: 1,
-  //     name: "Hard Coded White Tee",
-  //     category: "tops",
-  //     image_url:
-  //       "https://www.houseofblanks.com/cdn/shop/files/HeavyweightTshirt_White_01_2.jpg?v=1726516822&width=713",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Blue Jeans",
-  //     category: "bottoms",
-  //     image_url:
-  //       "https://img.abercrombie.com/is/image/anf/KIC_155-4247-0173-278_prod1?policy=product-large",
-  //   },
-  // ]);
   const [modelPhotoUrl, setModelPhotoUrl] = useState(""); // the user's model/avatar photo
   const [userId, setUserId] = useState(""); // logged-in user's UUID
   const fileInputRef = useRef(null); // ref to hidden file input for avatar upload
@@ -29,6 +14,9 @@ const WardrobeView = () => {
   const [clothingPreviewUrl, setClothingPreviewUrl] = useState(""); //Stores the file object as a temporary local URL for display by the browser
   const [clothingPieceName, setClothingPieceName] = useState("");
   const [clothingPieceCategory, setClothingPieceCategory] = useState("");
+  const [isBuildLookMode, setIsBuildLookMode] = useState(false);
+  const [selectedItems, setSelectedItems] = useState(new Set());
+  const [generatedImage, setGeneratedImageURL] = useState("");
 
   // ─── GROUP WARDROBE ITEMS BY CATEGORY ────────────────────────────────────
   const grouped = {};
@@ -144,6 +132,65 @@ const WardrobeView = () => {
     fetchWardrobe();
   };
 
+  // ─── GENERATE OUTFIT (TRY-ON CHAIN) ──────────────────────────────────────
+  // : loop through selectedItems, resolve each item's image_url from
+  // wardrobe state, then chain POST /tryon calls to the FastAPI backend —
+  // passing modelPhotoUrl as the base and swapping it out with each response
+  // until all selected pieces have been applied, then display the final result.
+  const handleGenerate = async () => {
+    let currentModelUrl = modelPhotoUrl;
+
+    const selectedWardrobe = wardrobe.filter((item) =>
+      selectedItems.has(item.id),
+    );
+
+    for (const item of selectedWardrobe) {
+      const response = await fetch(`${config.apiBaseUrl}/tryon`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model_image_url: currentModelUrl,
+          garment_image_url: item.image_url,
+          category: item.category,
+        }),
+      });
+      const data = await response.json();
+      currentModelUrl = data.image_url; // output becomes next input
+    }
+
+    setGeneratedImageURL(currentModelUrl);
+  };
+
+  // ─── BUILD LOOK SELECTION CONSTRAINTS ───────────────────────────────────
+  // Look at every item the user has ticked and collect their categories into a
+  // Set so we know what "type" of look is being built (top+bottom vs one-piece).
+  const selectedCategories = new Set(
+    wardrobe
+      .filter((item) => selectedItems.has(item.id))
+      .map((item) => item.category),
+  );
+  // These two flags drive the greying-out rules below.
+  const hasTopOrBottomSelected =
+    selectedCategories.has("top") || selectedCategories.has("bottom");
+  const hasOnePieceSelected = selectedCategories.has("one-piece");
+
+  // Returns true when an item should be greyed out and blocked from selection.
+  const isItemDisabled = (item) => {
+    // Outside Build Looks mode nothing is ever disabled.
+    if (!isBuildLookMode) return false;
+    // "Other" items are never try-on compatible, always block them.
+    if (item.category === "other") return true;
+    // If the user already picked a top or bottom, one-pieces can't be mixed in.
+    if (hasTopOrBottomSelected && item.category === "one-piece") return true;
+    // If the user already picked a one-piece, tops and bottoms can't be mixed in.
+    if (
+      hasOnePieceSelected &&
+      (item.category === "top" || item.category === "bottom")
+    )
+      return true;
+    return false;
+  };
+
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="wardrobe-page">
@@ -157,12 +204,17 @@ const WardrobeView = () => {
         style={{ display: "none" }}
       />
 
-      {/* Model photo section — shows photo if exists, placeholder if not */}
+      {/* Model photo section — shows photo if exists, placeholder if not.
+          In Build Looks mode, swaps to the generated try-on result once
+          handleGenerate has finished and stored a URL in generatedImage. */}
       {modelPhotoUrl ? (
         <img
           className="wardrobe-model-photo"
-          src={modelPhotoUrl}
+          // Show the generated outfit preview while in Build Looks mode if one
+          // exists; fall back to the plain model photo in all other cases.
+          src={isBuildLookMode && generatedImage ? generatedImage : modelPhotoUrl}
           alt="Your model photo"
+          onClick={!isBuildLookMode ? () => fileInputRef.current.click() : undefined}
         />
       ) : (
         <button
@@ -184,7 +236,36 @@ const WardrobeView = () => {
         <div key={category} className="wardrobe-category">
           <h2>{category}</h2>
           {grouped[category].map((item) => (
-            <div key={item.id} className="wardrobe-item">
+            <div
+              key={item.id}
+              // Build the class string piece by piece:
+              // --selectable  adds a pointer cursor in Build Looks mode
+              // --selected    highlights the card when the user has ticked it
+              // --disabled    greys it out when it conflicts with current picks
+              className={`wardrobe-item${isBuildLookMode ? " wardrobe-item--selectable" : ""}${selectedItems.has(item.id) ? " wardrobe-item--selected" : ""}${isItemDisabled(item) ? " wardrobe-item--disabled" : ""}`}
+              onClick={
+                // Only wire up a click handler in Build Looks mode and when
+                // the item isn't disabled. Clicking toggles it in/out of the
+                // selectedItems Set (we copy the Set so React sees a new value).
+                isBuildLookMode && !isItemDisabled(item)
+                  ? () =>
+                      setSelectedItems((prev) => {
+                        const next = new Set(prev);
+                        next.has(item.id)
+                          ? next.delete(item.id)
+                          : next.add(item.id);
+                        return next;
+                      })
+                  : undefined
+              }
+            >
+              {/* Only show the checkbox circle on items that can actually be selected */}
+              {isBuildLookMode && !isItemDisabled(item) && (
+                <div
+                  // --checked fills the circle and shows a tick when selected
+                  className={`wardrobe-item-check${selectedItems.has(item.id) ? " wardrobe-item-check--checked" : ""}`}
+                />
+              )}
               <img src={item.image_url} alt={item.name} />
               <p>{item.name}</p>
             </div>
@@ -192,11 +273,42 @@ const WardrobeView = () => {
         </div>
       ))}
 
-      {/* FAB — opens clothing item upload modal */}
-      <button className="wardrobe-fab" onClick={() => setIsModalOpen(true)}>
-        {" "}
-        +{" "}
-      </button>
+      {/* Bottom bar — contextual action above a segmented pill control */}
+      <div className="wardrobe-bottom-bar">
+        {!isBuildLookMode && (
+          <button className="wardrobe-fab" onClick={() => setIsModalOpen(true)}>
+            +
+          </button>
+        )}
+        {isBuildLookMode && selectedItems.size > 0 && (
+          <button
+            className="wardrobe-btn-generate"
+            onClick={() => handleGenerate()}
+          >
+            Generate
+          </button>
+        )}
+        <div className="wardrobe-segment">
+          <button
+            className={`wardrobe-segment-btn${!isBuildLookMode ? " wardrobe-segment-btn--active" : ""}`}
+            onClick={() => {
+              setIsBuildLookMode(false);
+              setSelectedItems(new Set());
+            }}
+          >
+            Add Pieces
+          </button>
+          <button
+            className={`wardrobe-segment-btn${isBuildLookMode ? " wardrobe-segment-btn--active" : ""}`}
+            onClick={() => {
+              setIsBuildLookMode(true);
+              setSelectedItems(new Set());
+            }}
+          >
+            Build Looks
+          </button>
+        </div>
+      </div>
 
       {isModalOpen && (
         <div className="modal-overlay">
@@ -252,9 +364,9 @@ const WardrobeView = () => {
               <option value="" disabled defaultValue={""}>
                 Select a category
               </option>
-              <option value="top">Top</option>
-              <option value="bottom">Bottom</option>
-              <option value="one-piece">One Piece</option>
+              <option value="tops">Top</option>
+              <option value="bottoms">Bottom</option>
+              <option value="one-pieces">One Piece</option>
               <option value="other">Other</option>
             </select>
 

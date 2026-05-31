@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  padding: 48px 24px 112px; /* bottom clears the fixed FAB */
+  padding: 48px 24px 168px; /* bottom clears the fixed action bar */
   position: relative;
   overflow-x: hidden;
 }
@@ -137,6 +137,7 @@
 /* ── Item card ───────────────────────────────────────────────────────────────
    Glass-morphism card matching the .glass utility class pattern. */
 .wardrobe-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -186,18 +187,29 @@
   text-overflow: ellipsis;
 }
 
-/* ── Floating action button ──────────────────────────────────────────────────
-   Fixed to bottom-centre of viewport. Circular glass pill matching the
-   glass-strong utility, with the same hover glow as .btn. */
-.wardrobe-fab {
+/* ── Bottom action bar ───────────────────────────────────────────────────────
+   Fixed strip. A contextual action (FAB or Generate) sits above the
+   segmented pill; the gradient hides the scroll content behind it cleanly. */
+.wardrobe-bottom-bar {
   position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
 
-  width: 56px;
-  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px 24px 32px;
+  background: linear-gradient(to top, var(--bg) 55%, transparent);
+}
+
+/* Circular FAB — lives inside the bar in Add Pieces mode */
+.wardrobe-fab {
+  width: 52px;
+  height: 52px;
   padding: 0;
 
   font-family: var(--font-body);
@@ -223,8 +235,132 @@
 .wardrobe-fab:hover {
   background: rgba(247, 230, 202, 0.22);
   border-color: rgba(247, 230, 202, 0.55);
-  transform: translateX(-50%) scale(1.08);
+  transform: scale(1.08);
   box-shadow: 0 8px 32px rgba(247, 230, 202, 0.2);
+}
+
+/* Generate — shown in Build Looks mode when items are selected */
+.wardrobe-btn-generate {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 11px 48px;
+
+  background: rgba(247, 230, 202, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(247, 230, 202, 0.45);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: 100px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.wardrobe-btn-generate:hover {
+  background: rgba(247, 230, 202, 0.22);
+  border-color: rgba(247, 230, 202, 0.6);
+  transform: scale(1.02);
+  box-shadow: 0 6px 24px rgba(247, 230, 202, 0.18);
+}
+
+/* ── Segmented pill control ──────────────────────────────────────────────────
+   One oval track split into two tappable halves. The active side gets a
+   filled glass pill inside the track; the inactive side stays transparent. */
+.wardrobe-segment {
+  display: flex;
+  align-items: center;
+
+  background: rgba(247, 230, 202, 0.05);
+  border: 1px solid rgba(247, 230, 202, 0.15);
+  border-radius: 100px;
+  padding: 3px;
+}
+
+.wardrobe-segment-btn {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 10px 24px;
+
+  background: transparent;
+  border: none;
+  border-radius: 100px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wardrobe-segment-btn--active {
+  background: rgba(247, 230, 202, 0.14);
+  color: var(--acc);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+.wardrobe-segment-btn:not(.wardrobe-segment-btn--active):hover {
+  color: var(--text);
+}
+
+/* ── Build Look — card selection states ──────────────────────────────────────
+   Selectable modifier tightens cursor; selected modifier brightens the border
+   and adds a subtle glow to make chosen items clearly stand out. */
+.wardrobe-item--selectable {
+  cursor: pointer;
+}
+
+.wardrobe-item--selected {
+  border-color: var(--border2);
+  background: var(--surface2);
+  box-shadow: 0 0 0 1px rgba(247, 230, 202, 0.2),
+              0 4px 16px rgba(247, 230, 202, 0.08);
+}
+
+/* Disabled — incompatible with current selection or never try-on compatible.
+   pointer-events: none is a CSS-level guard on top of the JS onClick guard. */
+.wardrobe-item--disabled {
+  opacity: 0.3;
+  filter: grayscale(0.5);
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Checkbox indicator — top-left corner circle */
+.wardrobe-item-check {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(247, 230, 202, 0.5);
+  background: rgba(6, 6, 6, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Filled cream circle with a checkmark when selected */
+.wardrobe-item-check--checked {
+  background: var(--acc);
+  border-color: var(--acc);
+}
+
+.wardrobe-item-check--checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: #060606;
 }
 
 /* ── Upload modal ────────────────────────────────────────────────────────────

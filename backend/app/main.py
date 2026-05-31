@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routes import subscribers
 from fastapi.middleware.cors import CORSMiddleware
+from app.routes import subscribers, tryon
 
 
 app = FastAPI()
@@ -19,3 +20,4 @@ async def root():
     return {"message": "Outfit Visualizer APP built by a baddie"}
 
 app.include_router(subscribers.router)
+app.include_router(tryon.router)
