@@ -1,0 +1,36 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 150;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 56px;
+
+  /* Same glass treatment used throughout the app */
+  background: rgba(6, 6, 6, 0.75);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Brand name — Cormorant Garamond matches the hero wordmark */
+.navbar-wordmark {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--acc);
+  user-select: none;
+}
+
+/* Constrain the Button so it doesn't stretch to full width */
+.navbar-logout .btn {
+  width: auto;
+  padding: 8px 20px;
+  font-size: 13px;
+}

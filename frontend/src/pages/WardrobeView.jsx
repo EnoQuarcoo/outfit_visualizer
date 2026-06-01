@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, React } from "react";
 import { supabase } from "../SupabaseClient";
 import "./WardrobeView.css";
 import { config } from "../config";
+import Navbar from "../components/Navbar";
 
 const WardrobeView = () => {
   // ─── STATE ───────────────────────────────────────────────────────────────
@@ -13,10 +14,11 @@ const WardrobeView = () => {
   const [clothingFile, setClothingFile] = useState(""); //Stores the file object the user uploads to be sent to the backend
   const [clothingPreviewUrl, setClothingPreviewUrl] = useState(""); //Stores the file object as a temporary local URL for display by the browser
   const [clothingPieceName, setClothingPieceName] = useState("");
-  const [clothingPieceCategory, setClothingPieceCategory] = useState("");
+  const [clothingPieceCategory, setClothingPieceCategory] = useState("tops");
   const [isBuildLookMode, setIsBuildLookMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [generatedImage, setGeneratedImageURL] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // ─── GROUP WARDROBE ITEMS BY CATEGORY ────────────────────────────────────
   const grouped = {};
@@ -138,6 +140,7 @@ const WardrobeView = () => {
   // passing modelPhotoUrl as the base and swapping it out with each response
   // until all selected pieces have been applied, then display the final result.
   const handleGenerate = async () => {
+    setIsGenerating(true);
     let currentModelUrl = modelPhotoUrl;
 
     const selectedWardrobe = wardrobe.filter((item) =>
@@ -159,6 +162,7 @@ const WardrobeView = () => {
     }
 
     setGeneratedImageURL(currentModelUrl);
+    setIsGenerating(false); // re-enable the button and clear the spinner
   };
 
   // ─── BUILD LOOK SELECTION CONSTRAINTS ───────────────────────────────────
@@ -194,6 +198,7 @@ const WardrobeView = () => {
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="wardrobe-page">
+      <Navbar />
       {/* Hidden file input — triggered programmatically by the avatar button */}
       <input
         ref={fileInputRef}
@@ -284,8 +289,13 @@ const WardrobeView = () => {
           <button
             className="wardrobe-btn-generate"
             onClick={() => handleGenerate()}
+            // Disable the button while a generation is in flight so the user
+            // can't fire a second request before the first one finishes.
+            disabled={isGenerating}
           >
-            Generate
+            {/* Swap label and show a spinner while the API call is running */}
+            {isGenerating && <span className="generate-spinner" />}
+            {isGenerating ? "Generating..." : "Generate"}
           </button>
         )}
         <div className="wardrobe-segment">

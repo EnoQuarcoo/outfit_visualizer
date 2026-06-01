@@ -9,6 +9,7 @@ async def generate_tryon(model_image_url: str, garment_image_url: str, category:
             "category": category,
             "mode": "balanced",
             "num_samples": 1,
+            "segmentation_free": False,
         },
     )
 

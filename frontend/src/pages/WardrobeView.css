@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  padding: 48px 24px 168px; /* bottom clears the fixed action bar */
+  padding: 80px 24px 168px; /* top clears the 56px fixed navbar; bottom clears the action bar */
   position: relative;
   overflow-x: hidden;
 }
@@ -241,6 +241,11 @@
 
 /* Generate — shown in Build Looks mode when items are selected */
 .wardrobe-btn-generate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
@@ -258,11 +263,33 @@
   transition: all 0.2s ease;
 }
 
-.wardrobe-btn-generate:hover {
+.wardrobe-btn-generate:hover:not(:disabled) {
   background: rgba(247, 230, 202, 0.22);
   border-color: rgba(247, 230, 202, 0.6);
   transform: scale(1.02);
   box-shadow: 0 6px 24px rgba(247, 230, 202, 0.18);
+}
+
+/* Dims the button and blocks interaction while the API call is in flight */
+.wardrobe-btn-generate:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Small circle that spins while isGenerating is true */
+.generate-spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  /* One quarter of the ring is opaque (the "head"), the rest is faint */
+  border: 2px solid rgba(247, 230, 202, 0.25);
+  border-top-color: var(--acc);
+  animation: spinner-rotate 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
 }
 
 /* ── Segmented pill control ──────────────────────────────────────────────────
