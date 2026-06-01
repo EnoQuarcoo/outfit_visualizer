@@ -84,30 +84,14 @@
 }
 
 /* ── Empty state ─────────────────────────────────────────────────────────────
-   margin:auto in a flex container centres the button both axes. */
-.wardrobe-empty-btn {
+   Informational hint centred in the flex column when the wardrobe is empty. */
+.wardrobe-empty-hint {
   margin: auto;
   font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  padding: 14px 40px;
-  background: rgba(247, 230, 202, 0.1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(247, 230, 202, 0.35);
-  color: var(--acc);
-  cursor: pointer;
-  border-radius: var(--radius);
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.wardrobe-empty-btn:hover {
-  background: rgba(247, 230, 202, 0.2);
-  border-color: rgba(247, 230, 202, 0.5);
-  transform: scale(1.02);
-  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.15);
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  letter-spacing: 0.03em;
 }
 
 /* ── Category sections ───────────────────────────────────────────────────────

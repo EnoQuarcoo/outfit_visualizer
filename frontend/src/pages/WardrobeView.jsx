@@ -217,9 +217,13 @@ const WardrobeView = () => {
           className="wardrobe-model-photo"
           // Show the generated outfit preview while in Build Looks mode if one
           // exists; fall back to the plain model photo in all other cases.
-          src={isBuildLookMode && generatedImage ? generatedImage : modelPhotoUrl}
+          src={
+            isBuildLookMode && generatedImage ? generatedImage : modelPhotoUrl
+          }
           alt="Your model photo"
-          onClick={!isBuildLookMode ? () => fileInputRef.current.click() : undefined}
+          onClick={
+            !isBuildLookMode ? () => fileInputRef.current.click() : undefined
+          }
         />
       ) : (
         <button
@@ -233,7 +237,7 @@ const WardrobeView = () => {
 
       {/* Empty wardrobe state — shown when no clothing items exist */}
       {wardrobe.length === 0 && (
-        <button className="wardrobe-empty-btn"> Add Clothing Items </button>
+        <p className="wardrobe-empty-hint">Add clothing items to get started.</p>
       )}
 
       {/* Clothing grid — grouped by category */}
@@ -369,11 +373,9 @@ const WardrobeView = () => {
               className="modal-select"
               id="category_selector"
               required
+              defaultValue="tops"
               onChange={(e) => setClothingPieceCategory(e.target.value)}
             >
-              <option value="" disabled defaultValue={""}>
-                Select a category
-              </option>
               <option value="tops">Top</option>
               <option value="bottoms">Bottom</option>
               <option value="one-pieces">One Piece</option>

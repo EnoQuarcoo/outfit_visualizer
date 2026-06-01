@@ -7,8 +7,19 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import WardrobeView from "./pages/WardrobeView";
 import ProtectRoute from "./components/ProtectRoute";
+import { supabase } from "./SupabaseClient";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function App() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        navigate("/wardrobe");
+      }
+    });
+  }, []);
   return (
     <>
       <Routes>
