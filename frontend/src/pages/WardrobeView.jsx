@@ -308,7 +308,7 @@ const WardrobeView = () => {
             onClick={() => {
               setIsBuildLookMode(false);
               setSelectedItems(new Set());
-            }}
+             }}
           >
             Add Pieces
           </button>
