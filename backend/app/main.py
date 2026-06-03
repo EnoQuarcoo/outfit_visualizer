@@ -8,7 +8,13 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for now (we’ll tighten later)
+    allow_origins=[
+        "http://localhost:5173",
+        "https://outfit-visualizer-git-development-enoquarcoos-projects.vercel.app",
+        "https://outfit-visualizer.vercel.app",
+        "https://abirima.fit",
+        "https://www.abirima.fit",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
