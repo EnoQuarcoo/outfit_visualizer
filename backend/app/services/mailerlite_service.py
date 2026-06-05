@@ -14,7 +14,7 @@ def create_subscriber(email, first_name):
     except Exception as e:
         print(f"Failed to create subscriber for {email}: {e}")
         return {'success': False,
-                "error": "Something rent wrong. Please try again"}
+                "error": "Something went wrong. Please try again"}
 
 
 # test_result = create_subscriber("test1@gmail.com", "Testeer")
