@@ -55,6 +55,8 @@ function WaitlistSection() {
   const [formState, setFormState] = useState("idle"); // 'idle' | 'submitted'
   const [betaState, setBetaState] = useState("idle"); // 'idle' | 'applied'
   const [hasError, setHasError] = useState(false);
+  const params = new URLSearchParams(window.location.search);
+  const referralCode = params.get("ref");
 
   // Only submit if the email field has content (basic guard)
   // Send post request to backend
@@ -73,6 +75,19 @@ function WaitlistSection() {
       );
       if (response.ok) {
         setFormState("submitted");
+        if (referralCode) {
+          await fetch(
+            "https://virlo-production.up.railway.app/referrals/track",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                referral_code: referralCode,
+                referred_email: email,
+              }),
+            },
+          );
+        }
       } else {
         setHasError(true);
         console.error("Submission failed:", response.status);
@@ -118,21 +133,33 @@ function WaitlistSection() {
 
           <h2
             style={{
-              fontFamily:    "var(--font-display)",
-              fontSize:      "clamp(28px, 3.6vw, 46px)",
-              fontWeight:    500,
-              lineHeight:    1.15,
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(28px, 3.6vw, 46px)",
+              fontWeight: 500,
+              lineHeight: 1.15,
               letterSpacing: "-0.01em",
-              maxWidth:      880,
-              color:         "var(--acc)",
-              margin:        0,
-              textWrap:      "balance",
+              maxWidth: 880,
+              color: "var(--acc)",
+              margin: 0,
+              textWrap: "balance",
             }}
           >
-            <span style={{ display: "block", fontSize: "32.232px", lineHeight: "1.25" }}>
+            <span
+              style={{
+                display: "block",
+                fontSize: "32.232px",
+                lineHeight: "1.25",
+              }}
+            >
               For anyone who&apos;s ever stared at a full closet
             </span>
-            <span style={{ display: "block", fontSize: "32.232px", lineHeight: "1.25" }}>
+            <span
+              style={{
+                display: "block",
+                fontSize: "32.232px",
+                lineHeight: "1.25",
+              }}
+            >
               and felt they had nothing to wear.
             </span>
           </h2>
@@ -282,12 +309,16 @@ function WaitlistSection() {
               >
                 Want to help shape the product?{" "}
                 <span style={{ color: "var(--acc)", fontWeight: 500 }}>
-                  We&apos;re looking for beta testers to try the very first version.
+                  We&apos;re looking for beta testers to try the very first
+                  version.
                 </span>{" "}
               </p>
               <button
                 onClick={() => {
-                  window.open("https://form.typeform.com/to/kfkR385c", "_blank");
+                  window.open(
+                    "https://form.typeform.com/to/kfkR385c",
+                    "_blank",
+                  );
                   setBetaState("applied");
                 }}
                 onMouseEnter={(e) => {
