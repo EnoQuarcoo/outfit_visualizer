@@ -1,0 +1,204 @@
+/* ── SharePage ──────────────────────────────────────────────────────────────── */
+
+.share-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg);
+  padding: 0 24px 100px;
+}
+
+/* ── Referral link section ─────────────────────────────────────────────────── */
+
+.share-hero {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 100px 0 64px;
+  text-align: center;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+
+.share-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--acc);
+  margin: 0;
+}
+
+.share-subtitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(237, 232, 224, 0.70);
+  max-width: 360px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.referral-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  width: 100%;
+  max-width: 560px;
+  flex-wrap: wrap;
+}
+
+.referral-url {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 8px 22px;
+  background: rgba(247, 230, 202, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(247, 230, 202, 0.35);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: rgba(247, 230, 202, 0.2);
+  border-color: rgba(247, 230, 202, 0.5);
+  box-shadow: 0 4px 20px rgba(247, 230, 202, 0.12);
+}
+
+.copy-btn:active {
+  transform: scale(0.97);
+}
+
+.copy-btn.copied {
+  color: var(--acc);
+  border-color: rgba(247, 230, 202, 0.5);
+  background: rgba(247, 230, 202, 0.15);
+}
+
+/* ── Leaderboard section ───────────────────────────────────────────────────── */
+
+.leaderboard-section {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 64px;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+
+.leaderboard-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 500;
+  color: var(--acc);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.leaderboard-list {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.leaderboard-row--me {
+  background: rgba(247, 230, 202, 0.1);
+  border-color: rgba(247, 230, 202, 0.4);
+  box-shadow: 0 0 0 1px rgba(247, 230, 202, 0.08) inset,
+              0 4px 20px rgba(247, 230, 202, 0.06);
+}
+
+.leaderboard-rank {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(237, 232, 224, 0.70);
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.leaderboard-row--me .leaderboard-rank {
+  color: var(--acc);
+}
+
+.leaderboard-name {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--acc);
+  flex: 1;
+}
+
+.leaderboard-row--me .leaderboard-name {
+  color: var(--acc);
+  font-weight: 500;
+}
+
+.leaderboard-count {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.leaderboard-row--me .leaderboard-count {
+  color: rgba(247, 230, 202, 0.65);
+}
+
+.leaderboard-you {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--acc);
+  background: rgba(247, 230, 202, 0.12);
+  border: 1px solid rgba(247, 230, 202, 0.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useInView } from "../hooks/useInView";
+import { useNavigate } from 'react-router-dom';
 
 // ── SectionReveal ─────────────────────────────────────────────────────────────
 // A wrapper that fades-and-slides its children into view when the user scrolls
@@ -56,9 +57,10 @@ function WaitlistSection() {
   const [betaState, setBetaState] = useState("idle"); // 'idle' | 'applied'
   const [hasError, setHasError] = useState(false);
   const params = new URLSearchParams(window.location.search);
-  const referralCode = params.get("ref");
+  const referrerCode = params.get("ref"); //the code of the person who shared the link. Used to track that a referral happened
+  const navigate = useNavigate();
 
-  // Only submit if the email field has content (basic guard)
+  // Only submit if the email field has content 
   // Send post request to backend
   async function handleSubmit(e) {
     e.preventDefault();
@@ -75,18 +77,27 @@ function WaitlistSection() {
       );
       if (response.ok) {
         setFormState("submitted");
-        if (referralCode) {
-          await fetch(
-            "https://virlo-production.up.railway.app/referrals/track",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                referral_code: referralCode,
-                referred_email: email,
-              }),
-            },
-          );
+        const data = await response.json();
+        if (data.virlo.success === true) {
+          const code = new URL(data.virlo.data.referral_link).searchParams.get("ref");
+          if (referrerCode) {
+            try {
+              await fetch(
+                "https://virlo-production.up.railway.app/referrals/track",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    referral_code: referrerCode,
+                    referred_email: email,
+                  }),
+                },
+              );
+            } catch {
+              // tracking failure doesn't block the redirect
+            }
+          }
+          navigate(`/share?ref=${code}`);
         }
       } else {
         setHasError(true);
