@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.routes import subscribers
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import subscribers, tryon
+from app.routes import subscribers, tryon, clothes
 
 
 app = FastAPI()
@@ -10,6 +10,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "http://localhost:5174",
         "https://outfit-visualizer-git-development-enoquarcoos-projects.vercel.app",
         "https://outfit-visualizer.vercel.app",
         "https://abirima.fit",
@@ -27,3 +28,4 @@ async def root():
 
 app.include_router(subscribers.router)
 app.include_router(tryon.router)
+app.include_router(clothes.router)

@@ -67,6 +67,9 @@ const WardrobeView = () => {
 
     getModelPhoto();
     fetchWardrobe();
+    setTimeout(() => {
+      fetchWardrobe();
+    }, 2000);
   }, []);
 
   // ─── AVATAR UPLOAD ────────────────────────────────────────────────────────
@@ -237,7 +240,9 @@ const WardrobeView = () => {
 
       {/* Empty wardrobe state — shown when no clothing items exist */}
       {wardrobe.length === 0 && (
-        <p className="wardrobe-empty-hint">Add clothing items to get started.</p>
+        <p className="wardrobe-empty-hint">
+          Add clothing items to get started.
+        </p>
       )}
 
       {/* Clothing grid — grouped by category */}
@@ -308,7 +313,7 @@ const WardrobeView = () => {
             onClick={() => {
               setIsBuildLookMode(false);
               setSelectedItems(new Set());
-             }}
+            }}
           >
             Add Pieces
           </button>
