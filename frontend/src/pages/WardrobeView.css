@@ -36,6 +36,22 @@
   z-index: 1;
 }
 
+/* ── Photo block ─────────────────────────────────────────────────────────────
+   Wraps the model/result photo together with its result actions so the two
+   read as one cohesive, centered unit. */
+.wardrobe-photo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* When showing a generated result, tighten the rhythm so the actions sit
+   close beneath the image without extra scroll. */
+.wardrobe-photo-block--result .wardrobe-model-photo {
+  margin-bottom: 16px;
+}
+
 /* ── Model photo ─────────────────────────────────────────────────────────────
    Portrait-ratio photo centred at 40-50% of page width, framed with the
    same border treatment used on active glass cards. */
@@ -169,6 +185,116 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ── Result actions ──────────────────────────────────────────────────────────
+   Sits directly beneath the generated photo: name input + ✕/Save/Discard,
+   kept compact so the whole image+name+actions unit fits without scrolling. */
+.result-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: clamp(220px, 45%, 420px);
+}
+
+.result-actions input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 14px;
+  background: rgba(247, 230, 202, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  outline: none;
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.result-actions input::placeholder {
+  color: var(--muted);
+}
+
+.result-actions input:focus {
+  border-color: var(--border2);
+  background: rgba(247, 230, 202, 0.07);
+}
+
+.result-actions button {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  padding: 10px 16px;
+
+  background: rgba(247, 230, 202, 0.1);
+  border: 1px solid rgba(247, 230, 202, 0.35);
+  color: var(--acc);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
+}
+
+.result-actions button:hover {
+  background: rgba(247, 230, 202, 0.2);
+  border-color: rgba(247, 230, 202, 0.5);
+}
+
+/* ✕ button — small square icon button, not full text padding */
+.result-actions button:first-of-type {
+  flex-shrink: 0;
+  padding: 10px 12px;
+}
+
+/* ── Top-right circular nav toggle ───────────────────────────────────────────
+   Switches between Wardrobe and Look Book. Sits just below the fixed navbar,
+   in the top-right corner, distinct from page actions but on-palette. */
+.page-nav-toggle {
+  position: fixed;
+  top: 76px;
+  right: 32px;
+  z-index: 140;
+
+  width: 44px;
+  height: 44px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--acc);
+  border: 1px solid var(--acc);
+  border-radius: 50%;
+  color: var(--bg);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(247, 230, 202, 0.25);
+  transition: all 0.2s ease;
+}
+
+.page-nav-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.page-nav-toggle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.4);
+}
+
+@media (max-width: 480px) {
+  .page-nav-toggle {
+    width: 40px;
+    height: 40px;
+    top: 72px;
+    right: 24px;
+  }
+
+  .page-nav-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 /* ── Bottom action bar ───────────────────────────────────────────────────────

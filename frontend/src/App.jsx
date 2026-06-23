@@ -6,10 +6,12 @@ import { Routes, Route } from "react-router";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import WardrobeView from "./pages/WardrobeView";
+import LookBook from "./pages/LookBook";
 import ProtectRoute from "./components/ProtectRoute";
 import { supabase } from "./SupabaseClient";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 
 function App() {
   const navigate = useNavigate();
@@ -31,6 +33,14 @@ function App() {
           element={
             <ProtectRoute>
               <WardrobeView />
+            </ProtectRoute>
+          }
+        />
+        <Route 
+          path="/lookbook"
+          element={
+            <ProtectRoute>
+              <LookBook />
             </ProtectRoute>
           }
         />

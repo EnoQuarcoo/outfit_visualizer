@@ -1,0 +1,40 @@
+/* ── Look Book page ──────────────────────────────────────────────────────────
+   Reuses .wardrobe-page for background/font/spacing rhythm and .wardrobe-item
+   for the card style, so the two pages share the same visual language. */
+.lookbook-page {
+  padding-bottom: 80px; /* no fixed bottom bar on this page */
+}
+
+.lookbook-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 600;
+  color: var(--acc);
+  letter-spacing: 0.01em;
+  text-align: center;
+  margin: 0 auto 32px;
+}
+
+/* ── Grid — 2 columns on mobile, auto-filling wider columns above ───────────── */
+.lookbook-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .lookbook-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* Outfit card — image on top, name below, matching .wardrobe-item exactly */
+.lookbook-card img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}

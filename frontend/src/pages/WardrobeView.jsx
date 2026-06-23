@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, React } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../SupabaseClient";
 import "./WardrobeView.css";
 import { config } from "../config";
 import Navbar from "../components/Navbar";
 
 const WardrobeView = () => {
+  const navigate = useNavigate();
   // ─── STATE ───────────────────────────────────────────────────────────────
   const [wardrobe, setWardrobe] = useState([]);
   const [modelPhotoUrl, setModelPhotoUrl] = useState(""); // the user's model/avatar photo
@@ -17,8 +19,9 @@ const WardrobeView = () => {
   const [clothingPieceCategory, setClothingPieceCategory] = useState("tops");
   const [isBuildLookMode, setIsBuildLookMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState(new Set());
-  const [generatedImage, setGeneratedImageURL] = useState("");
+  const [generatedImageURL, setGeneratedImageURL] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [outfitName, setOutfitName] = useState("");
 
   // ─── GROUP WARDROBE ITEMS BY CATEGORY ────────────────────────────────────
   const grouped = {};
@@ -74,7 +77,7 @@ const WardrobeView = () => {
 
   // ─── AVATAR UPLOAD ────────────────────────────────────────────────────────
   // Triggered when user selects a file from the hidden input
-  const handleAvatarChange = async () => {
+  const handleAvatarChange = async (event) => {
     const avatarPath = `${userId}/avatar-${Date.now()}.png`;
     const avatarFile = event.target.files[0];
 
@@ -150,6 +153,9 @@ const WardrobeView = () => {
       selectedItems.has(item.id),
     );
 
+    const defaultName = selectedWardrobe.map((i) => i.name).join(" + ");
+    setOutfitName(defaultName);
+
     for (const item of selectedWardrobe) {
       const response = await fetch(`${config.apiBaseUrl}/tryon`, {
         method: "POST",
@@ -198,10 +204,94 @@ const WardrobeView = () => {
     return false;
   };
 
+  // ─── SAVE GENERATED OUTFIT ──────────────────────────────────────────────────
+  // Fetch generatedImageURL → convert to blob
+  // Upload blob to Generated Outfits bucket with path ${userId}/outfit-${Date.now()}.png
+  // Get public URL back
+  // Insert into outfits: user_id, name (from outfitName), image_url (the Supabase public URL)
+  const handleSaveGeneratedOutfit = async () => {
+    //make image url from fal.ai into a raw binary file (blob) for supabase
+    const response = await fetch(generatedImageURL);
+    const supabaseBlob = await response.blob();
+    
+
+    //send blob to supbase
+    const outfitPath = `${userId}/outfit-${Date.now()}.png`;
+    const { data, error } = await supabase.storage
+      .from("Generated Outfits")
+      .upload(outfitPath, supabaseBlob, {
+        //not sure if i should keep these two lines. 
+        cacheControl: "3600",
+        upsert: false,
+      });
+    
+    if (error) {
+      console.log("error submitting to storage: ", error);
+    }
+    
+
+    // Resolve the public URL of the uploaded image
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("Generated Outfits").getPublicUrl(outfitPath);
+    
+    // Persist the public URL to the outfit table
+    const { data: updateData, error: updateError } = await supabase
+      .from("outfits")
+      .insert({
+        user_id: userId,
+        name: outfitName,
+        image_url: publicUrl,
+      });
+    
+      if (error) {
+        console.log("Error Occured from saving") //TODO: Display on page post MVP 
+      } else {
+        setGeneratedImageURL("")
+        setSelectedItems(new Set())
+        setOutfitName("")
+      }
+
+  };
+
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="wardrobe-page">
       <Navbar />
+
+      {/* Circular nav button — jumps to the saved Look Book */}
+      <button
+        className="page-nav-toggle"
+        onClick={() => navigate("/lookbook")}
+        aria-label="Go to Look Book"
+        title="Look Book"
+      >
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* splayed pages */}
+          <path
+            d="M12 5.5C10 4.5 7 4.3 4 5.2V18.2C7 17.3 10 17.5 12 18.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12 5.5C14 4.5 17 4.3 20 5.2V18.2C17 17.3 14 17.5 12 18.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* spine */}
+          <line x1="12" y1="5.5" x2="12" y2="18.5" stroke="currentColor" strokeWidth="1.2" />
+          {/* text lines on each page */}
+          <line x1="6.3" y1="9" x2="9.6" y2="8.6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+          <line x1="6.3" y1="12" x2="9.6" y2="11.7" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+          <line x1="14.4" y1="8.6" x2="17.7" y2="9" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+          <line x1="14.4" y1="11.7" x2="17.7" y2="12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+        </svg>
+      </button>
+
       {/* Hidden file input — triggered programmatically by the avatar button */}
       <input
         ref={fileInputRef}
@@ -214,29 +304,57 @@ const WardrobeView = () => {
 
       {/* Model photo section — shows photo if exists, placeholder if not.
           In Build Looks mode, swaps to the generated try-on result once
-          handleGenerate has finished and stored a URL in generatedImage. */}
-      {modelPhotoUrl ? (
-        <img
-          className="wardrobe-model-photo"
-          // Show the generated outfit preview while in Build Looks mode if one
-          // exists; fall back to the plain model photo in all other cases.
-          src={
-            isBuildLookMode && generatedImage ? generatedImage : modelPhotoUrl
-          }
-          alt="Your model photo"
-          onClick={
-            !isBuildLookMode ? () => fileInputRef.current.click() : undefined
-          }
-        />
-      ) : (
-        <button
-          className="wardrobe-model-placeholder"
-          onClick={() => fileInputRef.current.click()}
-        >
-          {" "}
-          + Add Photo of yourself
-        </button>
-      )}
+          handleGenerate has finished and stored a URL in generatedImageURL. */}
+      <div
+        className={`wardrobe-photo-block${isBuildLookMode && generatedImageURL ? " wardrobe-photo-block--result" : ""}`}
+      >
+        {modelPhotoUrl ? (
+          <img
+            className="wardrobe-model-photo"
+            // Show the generated outfit preview while in Build Looks mode if one
+            // exists; fall back to the plain model photo in all other cases.
+            src={
+              isBuildLookMode && generatedImageURL
+                ? generatedImageURL
+                : modelPhotoUrl
+            }
+            alt="Your model photo"
+            onClick={
+              !isBuildLookMode ? () => fileInputRef.current.click() : undefined
+            }
+          />
+        ) : (
+          <button
+            className="wardrobe-model-placeholder"
+            onClick={() => fileInputRef.current.click()}
+          >
+            {" "}
+            + Add Photo of yourself
+          </button>
+        )}
+
+        {isBuildLookMode && generatedImageURL && (
+          <div className="result-actions">
+            <input
+              type="text"
+              value={outfitName}
+              onChange={(e) => setOutfitName(e.target.value)}
+              placeholder="Name this look"
+            />
+            <button onClick={() => {setOutfitName("") }}>✕</button>
+            <button onClick={()=>{handleSaveGeneratedOutfit()}}>Save</button>
+            <button
+              onClick={() => {
+                setGeneratedImageURL("");
+                setSelectedItems(new Set());
+                setOutfitName("");
+              }}
+            >
+              Discard
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Empty wardrobe state — shown when no clothing items exist */}
       {wardrobe.length === 0 && (
@@ -246,46 +364,47 @@ const WardrobeView = () => {
       )}
 
       {/* Clothing grid — grouped by category */}
-      {Object.keys(grouped).map((category) => (
-        <div key={category} className="wardrobe-category">
-          <h2>{category}</h2>
-          {grouped[category].map((item) => (
-            <div
-              key={item.id}
-              // Build the class string piece by piece:
-              // --selectable  adds a pointer cursor in Build Looks mode
-              // --selected    highlights the card when the user has ticked it
-              // --disabled    greys it out when it conflicts with current picks
-              className={`wardrobe-item${isBuildLookMode ? " wardrobe-item--selectable" : ""}${selectedItems.has(item.id) ? " wardrobe-item--selected" : ""}${isItemDisabled(item) ? " wardrobe-item--disabled" : ""}`}
-              onClick={
-                // Only wire up a click handler in Build Looks mode and when
-                // the item isn't disabled. Clicking toggles it in/out of the
-                // selectedItems Set (we copy the Set so React sees a new value).
-                isBuildLookMode && !isItemDisabled(item)
-                  ? () =>
-                      setSelectedItems((prev) => {
-                        const next = new Set(prev);
-                        next.has(item.id)
-                          ? next.delete(item.id)
-                          : next.add(item.id);
-                        return next;
-                      })
-                  : undefined
-              }
-            >
-              {/* Only show the checkbox circle on items that can actually be selected */}
-              {isBuildLookMode && !isItemDisabled(item) && (
-                <div
-                  // --checked fills the circle and shows a tick when selected
-                  className={`wardrobe-item-check${selectedItems.has(item.id) ? " wardrobe-item-check--checked" : ""}`}
-                />
-              )}
-              <img src={item.image_url} alt={item.name} />
-              <p>{item.name}</p>
-            </div>
-          ))}
-        </div>
-      ))}
+      {(!isBuildLookMode || !generatedImageURL) &&
+        Object.keys(grouped).map((category) => (
+          <div key={category} className="wardrobe-category">
+            <h2>{category}</h2>
+            {grouped[category].map((item) => (
+              <div
+                key={item.id}
+                // Build the class string piece by piece:
+                // --selectable  adds a pointer cursor in Build Looks mode
+                // --selected    highlights the card when the user has ticked it
+                // --disabled    greys it out when it conflicts with current picks
+                className={`wardrobe-item${isBuildLookMode ? " wardrobe-item--selectable" : ""}${selectedItems.has(item.id) ? " wardrobe-item--selected" : ""}${isItemDisabled(item) ? " wardrobe-item--disabled" : ""}`}
+                onClick={
+                  // Only wire up a click handler in Build Looks mode and when
+                  // the item isn't disabled. Clicking toggles it in/out of the
+                  // selectedItems Set (we copy the Set so React sees a new value).
+                  isBuildLookMode && !isItemDisabled(item)
+                    ? () =>
+                        setSelectedItems((prev) => {
+                          const next = new Set(prev);
+                          next.has(item.id)
+                            ? next.delete(item.id)
+                            : next.add(item.id);
+                          return next;
+                        })
+                    : undefined
+                }
+              >
+                {/* Only show the checkbox circle on items that can actually be selected */}
+                {isBuildLookMode && !isItemDisabled(item) && (
+                  <div
+                    // --checked fills the circle and shows a tick when selected
+                    className={`wardrobe-item-check${selectedItems.has(item.id) ? " wardrobe-item-check--checked" : ""}`}
+                  />
+                )}
+                <img src={item.image_url} alt={item.name} />
+                <p>{item.name}</p>
+              </div>
+            ))}
+          </div>
+        ))}
 
       {/* Bottom bar — contextual action above a segmented pill control */}
       <div className="wardrobe-bottom-bar">
@@ -294,7 +413,7 @@ const WardrobeView = () => {
             +
           </button>
         )}
-        {isBuildLookMode && selectedItems.size > 0 && (
+        {/* {isBuildLookMode && selectedItems.size > 0 && (
           <button
             className="wardrobe-btn-generate"
             onClick={() => handleGenerate()}
@@ -302,7 +421,18 @@ const WardrobeView = () => {
             // can't fire a second request before the first one finishes.
             disabled={isGenerating}
           >
-            {/* Swap label and show a spinner while the API call is running */}
+            // Swap label and show a spinner while the API call is running 
+            {isGenerating && <span className="generate-spinner" />}
+            {isGenerating ? "Generating..." : "Generate"}
+          </button>
+        )} */}
+
+        {isBuildLookMode && (selectedItems.size > 0 || isGenerating) && !generatedImageURL && (
+          <button
+            className="wardrobe-btn-generate"
+            onClick={() => handleGenerate()}
+            disabled={isGenerating}
+          >
             {isGenerating && <span className="generate-spinner" />}
             {isGenerating ? "Generating..." : "Generate"}
           </button>
