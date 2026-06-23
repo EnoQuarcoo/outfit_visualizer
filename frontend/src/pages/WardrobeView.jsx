@@ -25,6 +25,8 @@ const WardrobeView = () => {
   const [outfitName, setOutfitName] = useState("");
   const [expandedImageUrl, setExpandedImageUrl] = useState("");
   const [isResultVisible, setIsResultVisible] = useState(false);
+  const DEFAULT_MODEL_URL =
+    "https://fzkmlmdghyzqozndcxxp.supabase.co/storage/v1/object/public/Avatars/Abrima-default-models/genderless_model.png";
 
   // ─── GROUP WARDROBE ITEMS BY CATEGORY ────────────────────────────────────
   const grouped = {};
@@ -150,7 +152,7 @@ const WardrobeView = () => {
   // until all selected pieces have been applied, then display the final result.
   const handleGenerate = async () => {
     setIsGenerating(true);
-    let currentModelUrl = modelPhotoUrl;
+    let currentModelUrl = modelPhotoUrl || DEFAULT_MODEL_URL;
 
     const selectedWardrobe = wardrobe.filter((item) =>
       selectedItems.has(item.id),
@@ -175,7 +177,7 @@ const WardrobeView = () => {
 
     setGeneratedImageURL(currentModelUrl);
     setIsGenerating(false); // re-enable the button and clear the spinner
-    setIsResultVisible(true); 
+    setIsResultVisible(true);
   };
 
   // ─── BUILD LOOK SELECTION CONSTRAINTS ───────────────────────────────────
@@ -217,28 +219,26 @@ const WardrobeView = () => {
     //make image url from fal.ai into a raw binary file (blob) for supabase
     const response = await fetch(generatedImageURL);
     const supabaseBlob = await response.blob();
-    
 
     //send blob to supbase
     const outfitPath = `${userId}/outfit-${Date.now()}.png`;
     const { data, error } = await supabase.storage
       .from("Generated Outfits")
       .upload(outfitPath, supabaseBlob, {
-        //not sure if i should keep these two lines. 
+        //not sure if i should keep these two lines.
         cacheControl: "3600",
         upsert: false,
       });
-    
+
     if (error) {
       console.log("error submitting to storage: ", error);
     }
-    
 
     // Resolve the public URL of the uploaded image
     const {
       data: { publicUrl },
     } = supabase.storage.from("Generated Outfits").getPublicUrl(outfitPath);
-    
+
     // Persist the public URL to the outfit table
     const { data: updateData, error: updateError } = await supabase
       .from("outfits")
@@ -247,16 +247,15 @@ const WardrobeView = () => {
         name: outfitName,
         image_url: publicUrl,
       });
-    
-      if (error || updateError) {
-        console.log("Error Occured from saving") //TODO: Display on page post MVP 
-      } else {
-        //setGeneratedImageURL("")
-        setSelectedItems(new Set())
-        setOutfitName("")
-        setIsResultVisible(false);
-      }
 
+    if (error || updateError) {
+      console.log("Error Occured from saving"); //TODO: Display on page post MVP
+    } else {
+      //setGeneratedImageURL("")
+      setSelectedItems(new Set());
+      setOutfitName("");
+      setIsResultVisible(false);
+    }
   };
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
@@ -288,12 +287,51 @@ const WardrobeView = () => {
             strokeLinejoin="round"
           />
           {/* spine */}
-          <line x1="12" y1="5.5" x2="12" y2="18.5" stroke="currentColor" strokeWidth="1.2" />
+          <line
+            x1="12"
+            y1="5.5"
+            x2="12"
+            y2="18.5"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
           {/* text lines on each page */}
-          <line x1="6.3" y1="9" x2="9.6" y2="8.6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-          <line x1="6.3" y1="12" x2="9.6" y2="11.7" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-          <line x1="14.4" y1="8.6" x2="17.7" y2="9" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-          <line x1="14.4" y1="11.7" x2="17.7" y2="12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+          <line
+            x1="6.3"
+            y1="9"
+            x2="9.6"
+            y2="8.6"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+          <line
+            x1="6.3"
+            y1="12"
+            x2="9.6"
+            y2="11.7"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+          <line
+            x1="14.4"
+            y1="8.6"
+            x2="17.7"
+            y2="9"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+          <line
+            x1="14.4"
+            y1="11.7"
+            x2="17.7"
+            y2="12"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
         </svg>
       </button>
 
@@ -310,65 +348,70 @@ const WardrobeView = () => {
       {/* Model photo section — shows photo if exists, placeholder if not.
           In Build Looks mode, swaps to the generated try-on result once
           handleGenerate has finished and stored a URL in generatedImageURL. */}
-      <div
-        className={`wardrobe-photo-block${isBuildLookMode && generatedImageURL ? " wardrobe-photo-block--result" : ""}`}
-      >
-        {modelPhotoUrl ? (
+
+      {/* Add Pieces — upload prompt */}
+      {!isBuildLookMode &&
+        (modelPhotoUrl ? (
           <img
             className="wardrobe-model-photo"
-            // Show the generated outfit preview while in Build Looks mode if one
-            // exists; fall back to the plain model photo in all other cases.
-            src={
-              isBuildLookMode && generatedImageURL
-                ? generatedImageURL
-                : modelPhotoUrl
-            }
+            src={modelPhotoUrl}
             alt="Your model photo"
-            onClick={
-              isBuildLookMode && generatedImageURL
-                ? () => setExpandedImageUrl(generatedImageURL)
-                : !isBuildLookMode
-                  ? () => fileInputRef.current.click()
-                  : undefined
-            }
+            onClick={() => fileInputRef.current.click()}
           />
         ) : (
           <button
             className="wardrobe-model-placeholder"
             onClick={() => fileInputRef.current.click()}
           >
-            {" "}
             + Add Photo of yourself
           </button>
-        )}
+        ))}
 
-        {isBuildLookMode && isResultVisible && (
-          <div className="result-actions">
-            <div className="result-actions-row">
-              <input
-                type="text"
-                value={outfitName}
-                onChange={(e) => setOutfitName(e.target.value)}
-                placeholder="Name this look"
-              />
-              <button onClick={() => {setOutfitName("") }}>✕</button>
+      {/* Build Looks — model/generated image */}
+      {isBuildLookMode && (
+        <div
+          className={`wardrobe-photo-block${isBuildLookMode && generatedImageURL ? " wardrobe-photo-block--result" : ""}`}
+        >
+          <img
+            className="wardrobe-model-photo"
+            src={generatedImageURL || modelPhotoUrl || DEFAULT_MODEL_URL}
+            alt="Your model photo"
+            onClick={
+              isBuildLookMode && generatedImageURL
+                ? () => setExpandedImageUrl(generatedImageURL)
+                : undefined
+            }
+          />
+          {isBuildLookMode && isResultVisible && (
+            <div className="result-actions">
+              <div className="result-actions-row">
+                <input
+                  type="text"
+                  value={outfitName}
+                  onChange={(e) => setOutfitName(e.target.value)}
+                  placeholder="Name this look"
+                />
+                <button onClick={() => setOutfitName("")}>✕</button>
+              </div>
+              <div className="result-actions-buttons">
+                <button onClick={() => handleSaveGeneratedOutfit()}>
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    setGeneratedImageURL("");
+                    setSelectedItems(new Set());
+                    setOutfitName("");
+                    setIsResultVisible(false);
+                  }}
+                >
+                  Discard
+                </button>
+              </div>
             </div>
-            <div className="result-actions-buttons">
-              <button onClick={()=>{handleSaveGeneratedOutfit()}}>Save</button>
-              <button
-                onClick={() => {
-                  setGeneratedImageURL("");
-                  setSelectedItems(new Set());
-                  setOutfitName("");
-                  setIsResultVisible(false);
-                }}
-              >
-                Discard
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Empty wardrobe state — shown when no clothing items exist */}
       {wardrobe.length === 0 && (
@@ -449,16 +492,18 @@ const WardrobeView = () => {
           </button>
         )} */}
 
-        {isBuildLookMode && (selectedItems.size > 0 || isGenerating) && !isResultVisible && (
-          <button
-            className="wardrobe-btn-generate"
-            onClick={() => handleGenerate()}
-            disabled={isGenerating}
-          >
-            {isGenerating && <span className="generate-spinner" />}
-            {isGenerating ? "Generating..." : "Generate"}
-          </button>
-        )}
+        {isBuildLookMode &&
+          (selectedItems.size > 0 || isGenerating) &&
+          !isResultVisible && (
+            <button
+              className="wardrobe-btn-generate"
+              onClick={() => handleGenerate()}
+              disabled={isGenerating}
+            >
+              {isGenerating && <span className="generate-spinner" />}
+              {isGenerating ? "Generating..." : "Generate"}
+            </button>
+          )}
         <div className="wardrobe-segment">
           <button
             className={`wardrobe-segment-btn${!isBuildLookMode ? " wardrobe-segment-btn--active" : ""}`}
