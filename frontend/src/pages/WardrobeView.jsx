@@ -4,6 +4,7 @@ import { supabase } from "../SupabaseClient";
 import "./WardrobeView.css";
 import { config } from "../config";
 import Navbar from "../components/Navbar";
+import ImageExpandModal from "../components/ImageExpandModal";
 
 const WardrobeView = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const WardrobeView = () => {
   const [generatedImageURL, setGeneratedImageURL] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [outfitName, setOutfitName] = useState("");
+  const [expandedImageUrl, setExpandedImageUrl] = useState("");
+  const [isResultVisible, setIsResultVisible] = useState(false);
 
   // ─── GROUP WARDROBE ITEMS BY CATEGORY ────────────────────────────────────
   const grouped = {};
@@ -172,6 +175,7 @@ const WardrobeView = () => {
 
     setGeneratedImageURL(currentModelUrl);
     setIsGenerating(false); // re-enable the button and clear the spinner
+    setIsResultVisible(true); 
   };
 
   // ─── BUILD LOOK SELECTION CONSTRAINTS ───────────────────────────────────
@@ -244,12 +248,13 @@ const WardrobeView = () => {
         image_url: publicUrl,
       });
     
-      if (error) {
+      if (error || updateError) {
         console.log("Error Occured from saving") //TODO: Display on page post MVP 
       } else {
-        setGeneratedImageURL("")
+        //setGeneratedImageURL("")
         setSelectedItems(new Set())
         setOutfitName("")
+        setIsResultVisible(false);
       }
 
   };
@@ -320,7 +325,11 @@ const WardrobeView = () => {
             }
             alt="Your model photo"
             onClick={
-              !isBuildLookMode ? () => fileInputRef.current.click() : undefined
+              isBuildLookMode && generatedImageURL
+                ? () => setExpandedImageUrl(generatedImageURL)
+                : !isBuildLookMode
+                  ? () => fileInputRef.current.click()
+                  : undefined
             }
           />
         ) : (
@@ -333,25 +342,30 @@ const WardrobeView = () => {
           </button>
         )}
 
-        {isBuildLookMode && generatedImageURL && (
+        {isBuildLookMode && isResultVisible && (
           <div className="result-actions">
-            <input
-              type="text"
-              value={outfitName}
-              onChange={(e) => setOutfitName(e.target.value)}
-              placeholder="Name this look"
-            />
-            <button onClick={() => {setOutfitName("") }}>✕</button>
-            <button onClick={()=>{handleSaveGeneratedOutfit()}}>Save</button>
-            <button
-              onClick={() => {
-                setGeneratedImageURL("");
-                setSelectedItems(new Set());
-                setOutfitName("");
-              }}
-            >
-              Discard
-            </button>
+            <div className="result-actions-row">
+              <input
+                type="text"
+                value={outfitName}
+                onChange={(e) => setOutfitName(e.target.value)}
+                placeholder="Name this look"
+              />
+              <button onClick={() => {setOutfitName("") }}>✕</button>
+            </div>
+            <div className="result-actions-buttons">
+              <button onClick={()=>{handleSaveGeneratedOutfit()}}>Save</button>
+              <button
+                onClick={() => {
+                  setGeneratedImageURL("");
+                  setSelectedItems(new Set());
+                  setOutfitName("");
+                  setIsResultVisible(false);
+                }}
+              >
+                Discard
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -364,7 +378,7 @@ const WardrobeView = () => {
       )}
 
       {/* Clothing grid — grouped by category */}
-      {(!isBuildLookMode || !generatedImageURL) &&
+      {(!isBuildLookMode || !isResultVisible) &&
         Object.keys(grouped).map((category) => (
           <div key={category} className="wardrobe-category">
             <h2>{category}</h2>
@@ -399,7 +413,15 @@ const WardrobeView = () => {
                     className={`wardrobe-item-check${selectedItems.has(item.id) ? " wardrobe-item-check--checked" : ""}`}
                   />
                 )}
-                <img src={item.image_url} alt={item.name} />
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  onClick={
+                    !isBuildLookMode
+                      ? () => setExpandedImageUrl(item.image_url)
+                      : undefined
+                  }
+                />
                 <p>{item.name}</p>
               </div>
             ))}
@@ -427,7 +449,7 @@ const WardrobeView = () => {
           </button>
         )} */}
 
-        {isBuildLookMode && (selectedItems.size > 0 || isGenerating) && !generatedImageURL && (
+        {isBuildLookMode && (selectedItems.size > 0 || isGenerating) && !isResultVisible && (
           <button
             className="wardrobe-btn-generate"
             onClick={() => handleGenerate()}
@@ -520,12 +542,18 @@ const WardrobeView = () => {
             <button
               className="modal-submit"
               onClick={() => handleClothingSubmission()}
+              disabled={!clothingFile}
             >
               Add Piece
             </button>
           </div>
         </div>
       )}
+
+      <ImageExpandModal
+        imageUrl={expandedImageUrl}
+        onClose={() => setExpandedImageUrl("")}
+      />
     </div>
   );
 };

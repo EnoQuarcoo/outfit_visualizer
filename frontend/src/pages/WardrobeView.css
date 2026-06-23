@@ -192,17 +192,24 @@
    kept compact so the whole image+name+actions unit fits without scrolling. */
 .result-actions {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: clamp(220px, 45%, 420px);
+}
+
+/* Row 1 — name input + ✕ clear button side by side */
+.result-actions-row {
+  display: flex;
   align-items: center;
   gap: 8px;
-  width: clamp(220px, 45%, 420px);
 }
 
 .result-actions input {
   flex: 1;
   min-width: 0;
   font-family: var(--font-body);
-  font-size: 14px;
-  padding: 10px 14px;
+  font-size: 16px;
+  padding: 14px 18px;
   background: rgba(247, 230, 202, 0.05);
   border: 1px solid var(--border);
   color: var(--text);
@@ -241,10 +248,22 @@
   border-color: rgba(247, 230, 202, 0.5);
 }
 
-/* ✕ button — small square icon button, not full text padding */
-.result-actions button:first-of-type {
+/* ✕ button — small square icon button, sits next to the input */
+.result-actions-row button {
   flex-shrink: 0;
-  padding: 10px 12px;
+  padding: 14px 16px;
+}
+
+/* Row 2 — Save / Discard, split evenly beneath the input */
+.result-actions-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.result-actions-buttons button {
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
 }
 
 /* ── Top-right circular nav toggle ───────────────────────────────────────────
@@ -710,4 +729,16 @@
   border-color: rgba(247, 230, 202, 0.5);
   transform: scale(1.02);
   box-shadow: 0 8px 28px rgba(247, 230, 202, 0.15);
+}
+
+.modal-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modal-submit:disabled:hover {
+  background: initial;
+  border-color: initial;
+  transform: none;
+  box-shadow: none;
 }

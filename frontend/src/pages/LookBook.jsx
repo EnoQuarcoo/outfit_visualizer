@@ -4,12 +4,14 @@ import { supabase } from "../SupabaseClient";
 import "./WardrobeView.css";
 import "./LookBook.css";
 import Navbar from "../components/Navbar";
+import ImageExpandModal from "../components/ImageExpandModal";
 
 const LookBook = () => {
   const navigate = useNavigate();
   // ─── STATE ───────────────────────────────────────────────────────────────
   const [userId, setUserId] = useState("");
   const [savedOutfits, setSavedOutfits] = useState([]);
+  const [expandedImageUrl, setExpandedImageUrl] = useState("");
 
   useEffect(() => {
     const fetchSavedOutfits = async () => {
@@ -71,11 +73,20 @@ const LookBook = () => {
       <div className="lookbook-grid">
         {savedOutfits.map((x) => (
           <div key={x.id} className="wardrobe-item lookbook-card">
-            <img src={x.image_url} alt={x.name} />
+            <img
+              src={x.image_url}
+              alt={x.name}
+              onClick={() => setExpandedImageUrl(x.image_url)}
+            />
             <p>{x.name}</p>
           </div>
         ))}
       </div>
+
+      <ImageExpandModal
+        imageUrl={expandedImageUrl}
+        onClose={() => setExpandedImageUrl("")}
+      />
     </div>
   );
 };
