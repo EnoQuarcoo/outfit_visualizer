@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       {/* Brand wordmark — left side */}
-      <span className="navbar-wordmark">Abirima</span>
+      <span className="navbar-wordmark">Abrima</span>
 
       {/* Logout — right side. Button's width:100% is overridden in Navbar.css
           so it sits inline rather than stretching the full container. */}

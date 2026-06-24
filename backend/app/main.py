@@ -13,8 +13,8 @@ app.add_middleware(
         "http://localhost:5174",
         "https://outfit-visualizer-git-development-enoquarcoos-projects.vercel.app",
         "https://outfit-visualizer.vercel.app",
-        "https://abirima.fit",
-        "https://www.abirima.fit",
+        "https://abrima.fit",
+        "https://www.abrima.fit",
         "https://abrima-testing.vercel.app"
     ],
     allow_credentials=True,
