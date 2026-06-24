@@ -24,6 +24,7 @@ const WardrobeView = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [outfitName, setOutfitName] = useState("");
   const [expandedImageUrl, setExpandedImageUrl] = useState("");
+  const [expandedItem, setExpandedItem] = useState(null);
   const [isResultVisible, setIsResultVisible] = useState(false);
   const DEFAULT_MODEL_URL =
     "https://fzkmlmdghyzqozndcxxp.supabase.co/storage/v1/object/public/Avatars/Abrima-default-models/genderless_model.png";
@@ -42,7 +43,8 @@ const WardrobeView = () => {
     const getWardrobe = await supabase
       .from("clothing_items")
       .select("*")
-      .eq("user_id", user_id);
+      .eq("user_id", user_id)
+      .is("deleted_at", null); // add this line
     //console.log(getWardrobe);
     setWardrobe(getWardrobe["data"]);
   };
@@ -258,6 +260,24 @@ const WardrobeView = () => {
     }
   };
 
+  // ─── DELETE CLOTHING PIECE ────────────────────────────────────────────────
+  const handleClothingItemDelete = async (expandedItem) => {
+    // console.log("item_id is", expandedItem.id);
+    // console.log("deleting item:", expandedItem.id, expandedItem.user_id);
+    const { error } = await supabase
+      .from("clothing_items")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", expandedItem.id)
+      .eq("user_id", expandedItem.user_id);
+    if (error) {
+      console.log("An error occured while deleting", error);
+    } else {
+      setExpandedImageUrl("");
+      setExpandedItem(null);
+      fetchWardrobe();
+    }
+  };
+
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="wardrobe-page">
@@ -461,7 +481,11 @@ const WardrobeView = () => {
                   alt={item.name}
                   onClick={
                     !isBuildLookMode
-                      ? () => setExpandedImageUrl(item.image_url)
+                      ? () => {
+                          setExpandedImageUrl(item.image_url);
+                          setExpandedItem(item);
+          
+                        }
                       : undefined
                   }
                 />
@@ -598,6 +622,9 @@ const WardrobeView = () => {
       <ImageExpandModal
         imageUrl={expandedImageUrl}
         onClose={() => setExpandedImageUrl("")}
+        onDelete={() => {
+          handleClothingItemDelete(expandedItem);
+        }}
       />
     </div>
   );

@@ -14,6 +14,14 @@
   cursor: zoom-out;
 }
 
+/* Wraps the image so the delete button can be positioned relative to its
+   actual rendered box, not the full viewport. Shrink-wraps to the image. */
+.image-expand-content {
+  position: relative;
+  display: inline-flex;
+  cursor: default;
+}
+
 .image-expand-img {
   width: 80vw;
   max-height: 85vh;
@@ -22,4 +30,41 @@
   border: 1px solid var(--border2);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
   cursor: default;
+}
+
+/* Delete — small circular button anchored to the image's upper-right corner */
+.image-expand-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(6, 6, 6, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(247, 230, 202, 0.35);
+  border-radius: 50%;
+  color: var(--acc);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-expand-delete svg {
+  width: 17px;
+  height: 17px;
+}
+
+.image-expand-delete:hover {
+  background: rgba(196, 64, 64, 0.85);
+  border-color: rgba(196, 64, 64, 0.9);
+  color: #fff;
+  transform: scale(1.08);
 }
