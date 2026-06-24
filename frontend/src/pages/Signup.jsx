@@ -31,8 +31,13 @@ const Signup = () => {
         );
         console.log(successMessage);
         const result = await upload_default_clothes(data.user.id);
-        // console.log("the user id is,  ", data.user.id);
-        // console.log("the long awaited result is", result);
+        const { error: usersTableInsertError } = await supabase
+          .from("users")
+          .update({ email: email })
+          .eq("id", data.user.id);
+        if (usersTableInsertError) {
+          console.log("problem putting email in users table.")
+        }
       }
     } catch (err) {
       setErrorMessage(err.message);
