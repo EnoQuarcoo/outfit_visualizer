@@ -57,7 +57,7 @@ const Signup = () => {
 
   const upload_default_clothes = async (user_id) => {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/add_default_pieces_on_signup`,
+      `${import.meta.env.VITE_API_BASE_URL}/add_default_pieces_on_signup`,
       {
         method: "POST",
         body: JSON.stringify({
