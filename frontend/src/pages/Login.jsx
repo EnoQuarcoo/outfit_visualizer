@@ -47,6 +47,7 @@ const Login = () => {
 
   return (
     <div className="login-page">
+      <div className="login-wordmark">ABRIMA</div>
       {/* Create email field */}
       <Input
         type="email"
@@ -68,7 +69,7 @@ const Login = () => {
         }}
       />
 
-      <Button text="Submit" onClick={handleSubmit} disabled={isLoading} />
+      <Button text="Login" onClick={handleSubmit} disabled={isLoading} />
       <Button
         text="Sign in with Google"
         onClick={handleGoogleSubmit}

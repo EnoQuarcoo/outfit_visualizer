@@ -71,6 +71,7 @@ const Signup = () => {
 
   return (
     <div className="signup-page">
+      <div className="signup-wordmark">ABRIMA</div>
       {/*Create Email Field */}
       <Input
         type="email"
@@ -95,9 +96,9 @@ const Signup = () => {
       />
 
       {/*Create Submit Button */}
-      <Button text="Submit" onClick={handleSubmit} disabled={isLoading} />
+      <Button text="Sign Up" onClick={handleSubmit} disabled={isLoading} />
       <Button
-        text="Sign in with Google"
+        text="Sign up with Google"
         onClick={handleGoogleSignIn}
         icon={
           <svg
