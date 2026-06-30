@@ -15,7 +15,8 @@ app.add_middleware(
         "https://outfit-visualizer.vercel.app",
         "https://abrima.fit",
         "https://www.abrima.fit",
-        "https://abrima-testing.vercel.app"
+        "https://abrima-testing.vercel.app",
+        "https://app.abrima.fit"
     ],
     allow_credentials=True,
     allow_methods=["*"],
