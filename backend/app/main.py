@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.routes import subscribers
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import subscribers, tryon, clothes
+from app.routes import subscribers, tryon, clothes, upload
 
 
 app = FastAPI()
@@ -30,3 +30,4 @@ async def root():
 app.include_router(subscribers.router)
 app.include_router(tryon.router)
 app.include_router(clothes.router)
+app.include_router(upload.router)

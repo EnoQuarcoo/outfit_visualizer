@@ -27,7 +27,7 @@ const WardrobeView = () => {
   const [expandedItem, setExpandedItem] = useState(null);
   const [isResultVisible, setIsResultVisible] = useState(false);
   const DEFAULT_MODEL_URL =
-    "https://fzkmlmdghyzqozndcxxp.supabase.co/storage/v1/object/public/Avatars/Abrima-default-models/genderless_model.png";
+    "https://fzkmlmdghyzqozndcxxp.supabase.co/storage/v1/object/public/Avatars/Abrima-default-models/genderless_model%202.jpg";
 
   // ─── GROUP WARDROBE ITEMS BY CATEGORY ────────────────────────────────────
   const grouped = {};
@@ -85,25 +85,40 @@ const WardrobeView = () => {
   // ─── AVATAR UPLOAD ────────────────────────────────────────────────────────
   // Triggered when user selects a file from the hidden input
   const handleAvatarChange = async (event) => {
-    const avatarPath = `${userId}/avatar-${Date.now()}.png`;
     const avatarFile = event.target.files[0];
 
-    // Upload the selected image to Supabase storage
-    const { data, uploadError } = await supabase.storage
-      .from("Avatars")
-      .upload(avatarPath, avatarFile);
+    const formData = new FormData();
+    formData.append("img", avatarFile);
 
-    // Get the public URL of the uploaded image
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("Avatars").getPublicUrl(avatarPath);
+    const response = await fetch(
+      `${config.apiBaseUrl}/upload_image?userId=${userId}&image_type=avatar`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
-    // Persist the public URL to the users table
-    const { data: updateData, updateError } = await supabase
-      .from("users")
-      .update({ model_photo_url: publicUrl })
-      .eq("id", userId)
-      .select();
+    const data = await response.json();
+    const publicUrl = data.database_upload_response.data[0].model_photo_url;
+    // const avatarPath = `${userId}/avatar-${Date.now()}.png`;
+    // const avatarFile = event.target.files[0];
+
+    // // Upload the selected image to Supabase storage
+    // const { data, uploadError } = await supabase.storage
+    //   .from("Avatars")
+    //   .upload(avatarPath, avatarFile);
+
+    // // Get the public URL of the uploaded image
+    // const {
+    //   data: { publicUrl },
+    // } = supabase.storage.from("Avatars").getPublicUrl(avatarPath);
+
+    // // Persist the public URL to the users table
+    // const { data: updateData, updateError } = await supabase
+    //   .from("users")
+    //   .update({ model_photo_url: publicUrl })
+    //   .eq("id", userId)
+    //   .select();
 
     // Update local state so the image renders immediately
     setModelPhotoUrl(publicUrl);
@@ -111,30 +126,42 @@ const WardrobeView = () => {
 
   // ─── ClOTHING UPLOAD ──────────────────────────────────────────────────────
   const handleClothingSubmission = async () => {
-    const clothingPath = `${userId}/clothingPiece-${Date.now()}.png`;
-    // Upload the selected image to Supabase storage
-    const { data, error } = await supabase.storage
-      .from("Clothing Pieces")
-      .upload(clothingPath, clothingFile, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-    //console.log("error submitting to storage: ", error);
+    const formData = new FormData();
+    formData.append("img", clothingFile);
 
-    // Resolve the public URL of the uploaded image
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("Clothing Pieces").getPublicUrl(clothingPath);
+    const response = await fetch(
+      `${config.apiBaseUrl}/upload_image?userId=${userId}&image_type=garment&name=${clothingPieceName}&category=${clothingPieceCategory}`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
-    // Persist the public URL to the users table
-    const { data: updateData, updateError } = await supabase
-      .from("clothing_items")
-      .insert({
-        user_id: userId,
-        name: clothingPieceName,
-        category: clothingPieceCategory,
-        image_url: publicUrl,
-      });
+    await response.json();
+    // const clothingPath = `${userId}/clothingPiece-${Date.now()}.png`;
+    // // Upload the selected image to Supabase storage
+    // const { data, error } = await supabase.storage
+    //   .from("Clothing Pieces")
+    //   .upload(clothingPath, clothingFile, {
+    //     cacheControl: "3600",
+    //     upsert: false,
+    //   });
+    // //console.log("error submitting to storage: ", error);
+
+    // // Resolve the public URL of the uploaded image
+    // const {
+    //   data: { publicUrl },
+    // } = supabase.storage.from("Clothing Pieces").getPublicUrl(clothingPath);
+
+    // // Persist the public URL to the users table
+    // const { data: updateData, updateError } = await supabase
+    //   .from("clothing_items")
+    //   .insert({
+    //     user_id: userId,
+    //     name: clothingPieceName,
+    //     category: clothingPieceCategory,
+    //     image_url: publicUrl,
+    //   });
     //console.log("update data:", updateData);
     //console.log("update error:", updateError);
 
@@ -484,7 +511,6 @@ const WardrobeView = () => {
                       ? () => {
                           setExpandedImageUrl(item.image_url);
                           setExpandedItem(item);
-          
                         }
                       : undefined
                   }
