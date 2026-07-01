@@ -40,7 +40,7 @@ const Login = () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${config.appUrl}/wardrobe`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
   };
