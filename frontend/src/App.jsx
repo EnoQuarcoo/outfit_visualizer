@@ -7,6 +7,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import WardrobeView from "./pages/WardrobeView";
 import LookBook from "./pages/LookBook";
+import AuthCallback from "./pages/AuthCallback";
 import ProtectRoute from "./components/ProtectRoute";
 import FeedbackButton from "./components/FeedbackButton";
 import { supabase } from "./SupabaseClient";
@@ -29,6 +30,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="signup" element={<Signup />} />
         <Route path="login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/wardrobe"
           element={

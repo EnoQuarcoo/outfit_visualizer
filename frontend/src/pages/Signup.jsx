@@ -47,12 +47,12 @@ const Signup = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
-    const result = await upload_default_clothes(data.user.id);
-    console.log("the user id is, data.user.id ");
-    console.log("the long awaited result is", result);
   };
 
   const upload_default_clothes = async (user_id) => {
