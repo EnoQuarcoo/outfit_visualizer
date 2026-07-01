@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import io
 
 def get_background_color(img):
@@ -18,6 +18,7 @@ def get_background_color(img):
 
 def preprocess_avatar_image(image_bytes: bytes):
     img = Image.open(io.BytesIO(image_bytes))
+    img = ImageOps.exif_transpose(img)
 
     # Step 1: Resize so longest edge <= 2000px, maintain aspect ratio
     max_size = 2000
@@ -62,6 +63,7 @@ def preprocess_avatar_image(image_bytes: bytes):
 
 def preprocess_garment_image(image_bytes: bytes):
     img = Image.open(io.BytesIO(image_bytes))
+    img = ImageOps.exif_transpose(img)
 
     # Step 1: Resize so longest edge <= 2000px, maintain aspect ratio
     max_size = 2000
