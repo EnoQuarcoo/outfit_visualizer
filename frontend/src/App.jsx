@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import WardrobeView from "./pages/WardrobeView";
 import LookBook from "./pages/LookBook";
 import ProtectRoute from "./components/ProtectRoute";
+import FeedbackButton from "./components/FeedbackButton";
 import { supabase } from "./SupabaseClient";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +46,7 @@ function App() {
           }
         />
       </Routes>
+      <FeedbackButton />
     </>
   );
 }

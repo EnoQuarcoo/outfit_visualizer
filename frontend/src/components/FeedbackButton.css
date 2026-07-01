@@ -1,0 +1,28 @@
+.feedback-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 160;
+
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(247, 230, 202, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(247, 230, 202, 0.35);
+  color: var(--acc);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-button:hover {
+  background: rgba(247, 230, 202, 0.2);
+  border-color: rgba(247, 230, 202, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.15);
+}
