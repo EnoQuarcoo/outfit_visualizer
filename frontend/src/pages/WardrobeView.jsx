@@ -410,7 +410,23 @@ const WardrobeView = () => {
             className="wardrobe-model-placeholder"
             onClick={() => fileInputRef.current.click()}
           >
-            + Add Photo of yourself
+            <span className="wardrobe-model-placeholder-title">
+              + Add full body photo of yourself
+            </span>
+            <div className="wardrobe-model-placeholder-tips">
+              <span className="wardrobe-model-placeholder-tips-label">
+                For best results:
+              </span>
+              <ul>
+                <li>Face forward, plain background, good lighting</li>
+                <li>Wear form-fitting clothes so your body shape is visible</li>
+                <li>
+                  Keep arms, legs, and face visible — no group photos or heavy
+                  shadows
+                </li>
+                <li>Check Build Looks for reference</li>
+              </ul>
+            </div>
           </button>
         ))}
 
