@@ -275,8 +275,8 @@
   right: 32px;
   z-index: 140;
 
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   padding: 0;
 
   display: flex;
@@ -293,8 +293,8 @@
 }
 
 .page-nav-toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
 .page-nav-toggle:hover {

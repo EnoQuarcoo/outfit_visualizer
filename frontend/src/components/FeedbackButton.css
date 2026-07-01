@@ -1,7 +1,7 @@
 .feedback-button {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  right: 32px;
   z-index: 160;
 
   width: 52px;
@@ -11,18 +11,15 @@
   align-items: center;
   justify-content: center;
 
-  background: rgba(247, 230, 202, 0.1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(247, 230, 202, 0.35);
-  color: var(--acc);
+  background: var(--acc);
+  border: 1px solid var(--acc);
+  color: var(--bg);
   cursor: pointer;
+  box-shadow: 0 6px 20px rgba(247, 230, 202, 0.25);
   transition: all 0.2s ease;
 }
 
 .feedback-button:hover {
-  background: rgba(247, 230, 202, 0.2);
-  border-color: rgba(247, 230, 202, 0.5);
-  transform: scale(1.05);
-  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.15);
+  transform: scale(1.08);
+  box-shadow: 0 8px 28px rgba(247, 230, 202, 0.4);
 }
