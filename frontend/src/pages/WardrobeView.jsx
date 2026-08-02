@@ -18,7 +18,7 @@ const WardrobeView = () => {
   const [clothingPreviewUrl, setClothingPreviewUrl] = useState(""); //Stores the file object as a temporary local URL for display by the browser
   const [clothingPieceName, setClothingPieceName] = useState("");
   const [clothingPieceCategory, setClothingPieceCategory] = useState("tops");
-  const [isBuildLookMode, setIsBuildLookMode] = useState(false);
+  const [isBuildLookMode, setIsBuildLookMode] = useState(true);
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [generatedImageURL, setGeneratedImageURL] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -572,15 +572,6 @@ const WardrobeView = () => {
           )}
         <div className="wardrobe-segment">
           <button
-            className={`wardrobe-segment-btn${!isBuildLookMode ? " wardrobe-segment-btn--active" : ""}`}
-            onClick={() => {
-              setIsBuildLookMode(false);
-              setSelectedItems(new Set());
-            }}
-          >
-            Add Pieces
-          </button>
-          <button
             className={`wardrobe-segment-btn${isBuildLookMode ? " wardrobe-segment-btn--active" : ""}`}
             onClick={() => {
               setIsBuildLookMode(true);
@@ -588,6 +579,15 @@ const WardrobeView = () => {
             }}
           >
             Build Looks
+          </button>
+          <button
+            className={`wardrobe-segment-btn${!isBuildLookMode ? " wardrobe-segment-btn--active" : ""}`}
+            onClick={() => {
+              setIsBuildLookMode(false);
+              setSelectedItems(new Set());
+            }}
+          >
+            Add Pieces
           </button>
         </div>
       </div>
