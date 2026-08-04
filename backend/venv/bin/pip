@@ -1,4 +1,6 @@
-#!/Users/eno/Desktop/outfit_visaulizer/backend/venv/bin/python
+#!/bin/sh
+'''exec' "/Users/eno/Documents/Code God/outfit_visaulizer/backend/venv/bin/python" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys
