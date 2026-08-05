@@ -11,6 +11,7 @@ import AuthCallback from "./pages/AuthCallback";
 import ProtectRoute from "./components/ProtectRoute";
 import FeedbackButton from "./components/FeedbackButton";
 import { supabase } from "./SupabaseClient";
+import { configureRevenueCat, loginRevenueCatUser } from "./RevenueCatClient";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,10 +19,17 @@ import { useNavigate } from "react-router-dom";
 function App() {
   const navigate = useNavigate();
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        navigate("/wardrobe");
-      }
+    // configure() must resolve before any logIn() call, so the auth
+    // listener is only wired up once RevenueCat is ready.
+    configureRevenueCat().then(() => {
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user?.id) {
+          loginRevenueCatUser(session.user.id);
+        }
+        if (event === "SIGNED_IN") {
+          navigate("/wardrobe");
+        }
+      });
     });
   }, []);
   return (

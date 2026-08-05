@@ -5,6 +5,9 @@ import "./WardrobeView.css";
 import { config } from "../config";
 import Navbar from "../components/Navbar";
 import ImageExpandModal from "../components/ImageExpandModal";
+import PaywallModal from "../components/PaywallModal";
+import { pricingConfig } from "../pricingConfig";
+import { purchasePlan } from "../RevenueCatClient";
 
 const WardrobeView = () => {
   const navigate = useNavigate();
@@ -26,6 +29,9 @@ const WardrobeView = () => {
   const [expandedImageUrl, setExpandedImageUrl] = useState("");
   const [expandedItem, setExpandedItem] = useState(null);
   const [isResultVisible, setIsResultVisible] = useState(false);
+  const [paywallPlan, setPaywallPlan] = useState(null); // null hides the paywall; otherwise the user's current plan from the 402 response
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [purchaseError, setPurchaseError] = useState("");
   const DEFAULT_MODEL_URL =
     "https://fzkmlmdghyzqozndcxxp.supabase.co/storage/v1/object/public/Avatars/Abrima-default-models/genderless_model%202.jpg";
 
@@ -190,16 +196,29 @@ const WardrobeView = () => {
     const defaultName = selectedWardrobe.map((i) => i.name).join(" + ");
     setOutfitName(defaultName);
 
+    
+    const { data: {session}, error } = await supabase.auth.getSession()
     for (const item of selectedWardrobe) {
       const response = await fetch(`${config.apiBaseUrl}/tryon`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           model_image_url: currentModelUrl,
           garment_image_url: item.image_url,
           category: item.category,
         }),
       });
+
+      if (response.status === 402) {
+        const { detail } = await response.json();
+        setPaywallPlan(detail?.plan || "free");
+        setIsGenerating(false);
+        return;
+      }
+
       const data = await response.json();
       currentModelUrl = data.image_url; // output becomes next input
     }
@@ -207,6 +226,25 @@ const WardrobeView = () => {
     setGeneratedImageURL(currentModelUrl);
     setIsGenerating(false); // re-enable the button and clear the spinner
     setIsResultVisible(true);
+  };
+
+  // ─── PAYWALL PURCHASE ─────────────────────────────────────────────────────
+  const handleSubscribe = async (planId) => {
+    setIsPurchasing(true);
+    setPurchaseError("");
+
+    const result = await purchasePlan(planId);
+    setIsPurchasing(false);
+
+    if (result.success) {
+      // Entitlement is active, but credits themselves aren't granted until
+      // the backend RevenueCat webhook exists (not built yet) — so a retry
+      // of Generate right after this may still 402 until that's in place.
+      setPaywallPlan(null);
+    } else if (!result.cancelled) {
+      setPurchaseError(result.message || "Something went wrong. Please try again.");
+    }
+    // cancelled: leave the modal open, no error, so they can just try again
   };
 
   // ─── BUILD LOOK SELECTION CONSTRAINTS ───────────────────────────────────
@@ -668,6 +706,35 @@ const WardrobeView = () => {
           handleClothingItemDelete(expandedItem);
         }}
       />
+
+      {paywallPlan === "free" && (
+        <PaywallModal
+          variant="upgrade"
+          title="See the fit before you wear it"
+          message={purchaseError || "Plan and visualize your outfits for work, dates, and more."}
+          features={[
+            "Generate ~40 outfits a month (≈80 individual try-ons)",
+            "Mix and match pieces from your wardrobe",
+            "Save your favorite looks",
+          ]}
+          plans={pricingConfig.plans}
+          defaultPlanId={pricingConfig.defaultPlanId}
+          ctaLabel={isPurchasing ? "Processing..." : "Get started"}
+          disabled={isPurchasing}
+          onSubscribe={handleSubscribe}
+          onClose={() => setPaywallPlan(null)}
+        />
+      )}
+
+      {paywallPlan && paywallPlan !== "free" && (
+        <PaywallModal
+          variant="limitReached"
+          title="You've used this month's credits"
+          message="Your monthly credits will refresh next billing cycle. Check back soon!"
+          ctaLabel="Got it"
+          onClose={() => setPaywallPlan(null)}
+        />
+      )}
     </div>
   );
 };
