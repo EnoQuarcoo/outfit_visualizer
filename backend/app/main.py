@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.routes import subscribers
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import subscribers, tryon, clothes, upload
+from app.routes import subscribers, tryon, clothes, upload, webhooks
 
 
 app = FastAPI()
@@ -16,7 +16,8 @@ app.add_middleware(
         "https://abrima.fit",
         "https://www.abrima.fit",
         "https://abrima-testing.vercel.app",
-        "https://app.abrima.fit"
+        "https://app.abrima.fit",
+        "capacitor://localhost"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -32,3 +33,4 @@ app.include_router(subscribers.router)
 app.include_router(tryon.router)
 app.include_router(clothes.router)
 app.include_router(upload.router)
+app.include_router(webhooks.router)
