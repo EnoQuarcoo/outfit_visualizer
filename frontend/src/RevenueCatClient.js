@@ -1,4 +1,5 @@
 import { Purchases, PURCHASES_ERROR_CODE } from "@revenuecat/purchases-capacitor";
+import { Capacitor } from "@capacitor/core";
 import { config } from "./config";
 import { pricingConfig } from "./pricingConfig";
 
@@ -12,15 +13,23 @@ export async function loginRevenueCatUser(userId) {
   await Purchases.logIn({ appUserID: userId });
 }
 
-// Maps the current offering's packages onto our own plan ids ("monthly"/"annual"),
-// relying on RevenueCat's built-in monthly/annual package-type slots.
+// Maps our own plan ids ("monthly"/"annual") to the actual RevenueCat
+// package. The Test Store packages use custom identifiers ("monthly"/
+// "yearly"), while the real App Store packages use RevenueCat's reserved
+// monthly/annual slots (offering.monthly/offering.annual) — so both are
+// looked up both ways, whichever store the app is currently configured
+// against.
 async function getPlanPackages() {
   const offerings = await Purchases.getOfferings();
   const offering = offerings.current;
   if (!offering) return {};
+
+  const findByIdentifier = (identifier) =>
+    offering.availablePackages.find((pkg) => pkg.identifier === identifier);
+
   return {
-    monthly: offering.monthly,
-    annual: offering.annual,
+    monthly: offering.monthly || findByIdentifier("monthly"),
+    annual: offering.annual || findByIdentifier("yearly"),
   };
 }
 
@@ -32,6 +41,14 @@ function hasActiveEntitlement(customerInfo) {
 // Returns { success, cancelled, message } — success is only true once the
 // entitlement is confirmed active, not just once the store call resolves.
 export async function purchasePlan(planId) {
+  if (!Capacitor.isNativePlatform()) {
+    return {
+      success: false,
+      cancelled: false,
+      message: "Subscriptions are only available in the mobile app right now.",
+    };
+  }
+
   const packages = await getPlanPackages();
   const aPackage = packages[planId];
 

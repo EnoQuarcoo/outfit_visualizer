@@ -12,6 +12,7 @@ import ProtectRoute from "./components/ProtectRoute";
 import FeedbackButton from "./components/FeedbackButton";
 import { supabase } from "./SupabaseClient";
 import { configureRevenueCat, loginRevenueCatUser } from "./RevenueCatClient";
+import { Capacitor } from "@capacitor/core";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,18 +20,27 @@ import { useNavigate } from "react-router-dom";
 function App() {
   const navigate = useNavigate();
   useEffect(() => {
-    // configure() must resolve before any logIn() call, so the auth
-    // listener is only wired up once RevenueCat is ready.
-    configureRevenueCat().then(() => {
+    // RevenueCat's Capacitor plugin rejects every call when not running in
+    // the native app (e.g. the web build at app.abrima.fit), so it's skipped
+    // entirely on web rather than left to silently reject.
+    const setupAuthListener = () => {
       supabase.auth.onAuthStateChange((event, session) => {
-        if (session?.user?.id) {
+        if (Capacitor.isNativePlatform() && session?.user?.id) {
           loginRevenueCatUser(session.user.id);
         }
         if (event === "SIGNED_IN") {
           navigate("/wardrobe");
         }
       });
-    });
+    };
+
+    if (Capacitor.isNativePlatform()) {
+      // configure() must resolve before any logIn() call, so the auth
+      // listener is only wired up once RevenueCat is ready.
+      configureRevenueCat().then(setupAuthListener);
+    } else {
+      setupAuthListener();
+    }
   }, []);
   return (
     <>

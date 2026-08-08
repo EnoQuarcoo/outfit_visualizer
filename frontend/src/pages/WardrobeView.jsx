@@ -729,7 +729,7 @@ const WardrobeView = () => {
       {paywallPlan && paywallPlan !== "free" && (
         <PaywallModal
           variant="limitReached"
-          title="You've used this month's credits"
+          title="You've used up all of this month's credits"
           message="Your monthly credits will refresh next billing cycle. Check back soon!"
           ctaLabel="Got it"
           onClose={() => setPaywallPlan(null)}
