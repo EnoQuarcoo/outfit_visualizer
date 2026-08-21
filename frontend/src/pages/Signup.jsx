@@ -4,6 +4,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { supabase } from "../SupabaseClient";
 import "./Signup.css";
+import { signInWithProvider } from "../oauth";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -46,14 +47,7 @@ const Signup = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
+  const handleGoogleSignIn =  () => { signInWithProvider("google")};
 
   const upload_default_clothes = async (user_id) => {
     const response = await fetch(

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router";
 import "./Login.css";
 import { config } from "../config";
+import { signInWithProvider } from "../oauth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -36,14 +37,10 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSubmit = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
+  const handleGoogleSubmit =  () => signInWithProvider("google") 
+    
+
+
 
   return (
     <div className="login-page">

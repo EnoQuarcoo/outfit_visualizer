@@ -15,6 +15,7 @@ import { configureRevenueCat, loginRevenueCatUser } from "./RevenueCatClient";
 import { Capacitor } from "@capacitor/core";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { listenForAuthRedirect } from "./oauth";
 
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
     } else {
       setupAuthListener();
     }
+
+    listenForAuthRedirect()
   }, []);
   return (
     <>
