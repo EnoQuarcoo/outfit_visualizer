@@ -19,6 +19,11 @@ export async function signInWithProvider(provider) {
         options : {
             redirectTo : "fit.abrima.app://auth/callback", //Provider sends user here after they finish signing in
             skipBrowserRedirect: true, //Prevents supabase from opening google directly
+            // Google silently reuses an existing session instead of showing
+            // the account picker unless explicitly told to prompt for one.
+            ...(provider === "google" && {
+                queryParams: { prompt: "select_account" },
+            }),
         }
 
     })

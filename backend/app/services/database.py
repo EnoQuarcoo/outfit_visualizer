@@ -51,15 +51,17 @@ def add_demo_pieces_to_wardrobe(user_id):
 # user_id="1c54d0c9-8762-423e-a2eb-818973cf54fb"
 # print(automatically_upload_pieces_to_wardrobe_on_signup(user_id))
 
-def has_enough_credits(user_id): 
+
+def has_enough_credits(user_id):
     response = (
         supabase.table("users")
         .select("monthly_credits_remaining, topup_credits_remaining, plan")
         .eq("id", user_id)
         .execute()
-    ) 
+    )
     user_row = response.data[0]
-    has_credits = user_row["monthly_credits_remaining"] + user_row["topup_credits_remaining"] > 0
+    has_credits = user_row["monthly_credits_remaining"] + \
+        user_row["topup_credits_remaining"] > 0
     return has_credits, user_row["plan"]
 
 
@@ -114,3 +116,39 @@ def revert_to_free_plan(user_id):
         .eq("id", user_id)
         .execute()
     )
+
+
+def delete_user_images_from_storage(user_id, bucket_name):
+    # delete user's info from all 3 storage buckets.
+    # List the items beginning with the user id
+    items_in_bucket_response = (
+        supabase.storage
+        .from_(bucket_name)
+        .list(
+            user_id,
+        )
+    )
+    print(items_in_bucket_response)
+    # its a list of dictionaries that's returned. get all the names and .remove()
+    files_to_delete = []
+    if not files_to_delete:
+        return 
+    for item in items_in_bucket_response:
+        files_to_delete.append(user_id + "/" + item["name"])
+    print("files to delete are ", files_to_delete)
+    # delete the actual files
+    delete_items_from_bucket_response = (
+        supabase.storage
+        .from_(bucket_name)
+        .remove(files_to_delete)
+    )
+
+
+def delete_user_info_from_tables(user_id):
+    response = (
+        supabase.table("users")
+        .delete()
+        .eq("id", user_id)
+        .execute()
+    )
+    supabase.auth.admin.delete_user(user_id)
